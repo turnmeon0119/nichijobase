@@ -19,6 +19,7 @@ Route::middleware('admin.api.token')->group(function (): void {
     Route::post('/articles', [ArticleController::class, 'store']);
     Route::put('/articles/{slug}', [ArticleController::class, 'update']);
     Route::delete('/articles/{slug}', [ArticleController::class, 'destroy']);
+    Route::delete('/articles/id/{article}', [ArticleController::class, 'destroyById']);
     Route::delete('/threads/{thread}', [BoardThreadController::class, 'destroy']);
     Route::delete('/threads/{thread}/posts/{post}', [BoardPostController::class, 'destroy']);
     Route::patch('/threads/{thread}/hide', [BoardThreadController::class, 'hide']);

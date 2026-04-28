@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin.api.token' => \App\Http\Middleware\AdminApiToken::class,
+            'admin.web.token' => \App\Http\Middleware\AdminWebToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

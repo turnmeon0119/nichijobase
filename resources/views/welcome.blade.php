@@ -316,7 +316,6 @@
                 <nav class="top-nav">
                     <a href="{{ route('board.timeline') }}">タイムライン</a>
                     <a href="{{ route('board.index') }}">掲示板</a>
-                    <a href="/api/threads">API</a>
                 </nav>
             </header>
 
@@ -333,7 +332,6 @@
                     <div class="cta-row">
                         <a class="cta primary" href="{{ route('board.timeline') }}">新着を追う</a>
                         <a class="cta" href="{{ route('board.index') }}">スレッドで読む</a>
-                        <a class="cta" href="/api/threads">API を確認</a>
                     </div>
                 </article>
 
@@ -347,7 +345,7 @@
                         <span>スレッド一覧、詳細表示、返信投稿までブラウザで完結します。</span>
                     </div>
                     <div class="quote-card">
-                        <p>トップは Laravel の初期画面ではなく、このプロジェクトの動線として差し替え済みです。</p>
+                        <p>トップは Laravel の初期画面ではなく、日常BASE の導線として差し替え済みです。</p>
                     </div>
                 </div>
             </section>
@@ -374,19 +372,12 @@
                         <p class="card-copy">スレッド単位でじっくり読む画面です。新規スレ作成や返信投稿もここから行えます。</p>
                         <a class="route-link" href="{{ route('board.index') }}"><code>/board</code></a>
                     </article>
-
-                    <article class="route-card">
-                        <div class="route-kicker">Data</div>
-                        <h3>API</h3>
-                        <p class="card-copy">フロントや別クライアントから使うための JSON エンドポイントです。実装確認にも使えます。</p>
-                        <a class="route-link" href="/api/threads"><code>/api/threads</code></a>
-                    </article>
                 </div>
 
                 <div class="subgrid">
                     <article class="panel">
                         <h2 style="margin: 0 0 10px;">このサイトで今できること</h2>
-                        <p class="panel-copy">記事 API、掲示板 API、ブラウザで開ける掲示板画面、タイムライン画面まで入っています。次に記事ページ側へ導線を増やせば、番組サイトらしさがさらに強くなります。</p>
+                        <p class="panel-copy">ブラウザで開ける掲示板画面とタイムライン画面まで入っています。次に記事ページ側へ導線を増やせば、番組サイトらしさがさらに強くなります。</p>
                         <a class="mini-link" href="{{ route('board.index') }}">掲示板から確認する</a>
                     </article>
 

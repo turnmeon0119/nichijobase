@@ -26,6 +26,53 @@ class BoardPageTest extends TestCase
             ->assertSee(route('board.show', $thread), false);
     }
 
+    public function test_it_prefills_remembered_name_on_board_pages(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => '名前記憶スレ',
+            'body' => '本文',
+        ]);
+
+        $this->withSession(['board_name' => '記憶済み'])
+            ->get('/board')
+            ->assertSee('value="記憶済み"', false);
+
+        $this->withSession(['board_name' => '記憶済み'])
+            ->get('/board/'.$thread->id)
+            ->assertSee('value="記憶済み"', false);
+    }
+
+    public function test_it_shows_admin_controls_when_admin_session_exists(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => '管理スレ',
+            'body' => '本文',
+        ]);
+
+        $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->get('/board')
+            ->assertSee('管理モードで表示中です。')
+            ->assertSee('管理用ID: #'.$thread->id)
+            ->assertSee('このスレを削除')
+            ->assertSee('管理モードを解除');
+    }
+
+    public function test_admin_can_delete_thread_from_board_ui(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => '削除対象スレ',
+            'body' => '本文',
+        ]);
+
+        $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->delete('/admin/threads/'.$thread->id);
+
+        $response->assertRedirect(route('board.index'));
+        $this->assertDatabaseMissing('board_threads', [
+            'id' => $thread->id,
+        ]);
+    }
+
     public function test_it_renders_timeline_page(): void
     {
         $thread = BoardThread::query()->create([
@@ -83,7 +130,8 @@ class BoardPageTest extends TestCase
 
         $thread = BoardThread::query()->where('title', '画面作成スレ')->firstOrFail();
 
-        $response->assertRedirect(route('board.show', $thread));
+        $response->assertRedirect(route('board.show', $thread).'#thread-'.$thread->id);
+        $response->assertSessionHas('board_name', '投稿者');
         $this->assertDatabaseHas('board_threads', [
             'id' => $thread->id,
             'article_id' => $article->id,
@@ -103,7 +151,10 @@ class BoardPageTest extends TestCase
             'body' => '画面から返信',
         ]);
 
-        $response->assertRedirect(route('board.show', $thread));
+        $postId = $thread->posts()->value('id');
+
+        $response->assertRedirect(route('board.show', $thread).'#post-'.$postId);
+        $response->assertSessionHas('board_name', '返信者');
         $this->assertDatabaseHas('board_posts', [
             'board_thread_id' => $thread->id,
             'name' => '返信者',

@@ -7,11 +7,45 @@ use App\Models\BoardPost;
 use App\Models\BoardThread;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BoardPageController extends Controller
 {
+    private function formatTimestamp(?Carbon $timestamp): array
+    {
+        if ($timestamp === null) {
+            return [
+                'relative' => '',
+                'absolute' => '',
+            ];
+        }
+
+        return [
+            'relative' => $timestamp->diffForHumans(),
+            'absolute' => $timestamp->format('Y/m/d H:i'),
+        ];
+    }
+
+    private function rememberedName(Request $request): string
+    {
+        return (string) $request->session()->get('board_name', '');
+    }
+
+    private function storeRememberedName(Request $request, ?string $name): void
+    {
+        $request->session()->put('board_name', trim((string) $name));
+    }
+
+    private function isAdmin(Request $request): bool
+    {
+        $expectedToken = (string) config('app.admin_api_token');
+        $sessionToken = (string) $request->session()->get('admin_web_token', '');
+
+        return $expectedToken !== '' && hash_equals($expectedToken, $sessionToken);
+    }
+
     public function timeline(): View
     {
         $threads = BoardThread::query()
@@ -34,6 +68,8 @@ class BoardPageController extends Controller
                 'name' => $thread->name,
                 'body' => $thread->body,
                 'created_at' => $thread->created_at,
+                'created_label' => $this->formatTimestamp($thread->created_at)['relative'],
+                'created_exact' => $this->formatTimestamp($thread->created_at)['absolute'],
                 'article' => $thread->article,
                 'posts_count' => $thread->posts_count,
             ])
@@ -45,6 +81,8 @@ class BoardPageController extends Controller
                 'name' => $post->name,
                 'body' => $post->body,
                 'created_at' => $post->created_at,
+                'created_label' => $this->formatTimestamp($post->created_at)['relative'],
+                'created_exact' => $this->formatTimestamp($post->created_at)['absolute'],
                 'article' => $post->thread?->article,
                 'posts_count' => null,
             ]))
@@ -53,6 +91,7 @@ class BoardPageController extends Controller
 
         return view('board.timeline', [
             'items' => $items,
+            'isAdmin' => $this->isAdmin(request()),
         ]);
     }
 
@@ -74,6 +113,8 @@ class BoardPageController extends Controller
         return view('board.index', [
             'threads' => $threads,
             'articles' => $articles,
+            'rememberedName' => $this->rememberedName(request()),
+            'isAdmin' => $this->isAdmin(request()),
         ]);
     }
 
@@ -90,6 +131,8 @@ class BoardPageController extends Controller
 
         return view('board.show', [
             'thread' => $thread,
+            'rememberedName' => $this->rememberedName(request()),
+            'isAdmin' => $this->isAdmin(request()),
         ]);
     }
 
@@ -107,9 +150,10 @@ class BoardPageController extends Controller
             'name' => ($validated['name'] ?? null) ?: null,
             'created_ip' => $request->ip(),
         ]);
+        $this->storeRememberedName($request, $validated['name'] ?? null);
 
         return redirect()
-            ->route('board.show', $thread)
+            ->to(route('board.show', $thread).'#thread-'.$thread->id)
             ->with('status', 'スレッドを作成しました。');
     }
 
@@ -124,14 +168,24 @@ class BoardPageController extends Controller
             'body' => ['required', 'string'],
         ]);
 
-        $thread->posts()->create([
+        $post = $thread->posts()->create([
             ...$validated,
             'name' => ($validated['name'] ?? null) ?: null,
             'created_ip' => $request->ip(),
         ]);
+        $this->storeRememberedName($request, $validated['name'] ?? null);
 
         return redirect()
-            ->route('board.show', $thread)
+            ->to(route('board.show', $thread).'#post-'.$post->id)
             ->with('status', '返信を投稿しました。');
+    }
+
+    public function destroy(BoardThread $thread): RedirectResponse
+    {
+        $thread->delete();
+
+        return redirect()
+            ->route('board.index')
+            ->with('status', 'スレッドを削除しました。');
     }
 }

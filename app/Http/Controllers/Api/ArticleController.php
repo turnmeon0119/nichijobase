@@ -61,6 +61,13 @@ class ArticleController extends Controller
         return response()->json([], 204);
     }
 
+    public function destroyById(Article $article): JsonResponse
+    {
+        $article->delete();
+
+        return response()->json([], 204);
+    }
+
     public function index(): JsonResponse
     {
         $articles = Article::query()

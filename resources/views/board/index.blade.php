@@ -17,17 +17,28 @@
                             <div class="eyebrow">
                                 {{ $thread->article?->title ? '記事連携: '.$thread->article->title : '雑談スレッド' }}
                             </div>
+                            @if ($isAdmin)
+                                <div class="meta" style="margin-bottom: 10px;">管理用ID: #{{ $thread->id }}</div>
+                            @endif
                             <h3 class="card-title">
                                 <a href="{{ route('board.show', $thread) }}">{{ $thread->title }}</a>
                             </h3>
                             <p class="card-body">{{ $thread->body }}</p>
                             <div class="badge-row">
                                 <span class="badge">返信 {{ $thread->posts_count }} 件</span>
-                                <span class="badge">作成 {{ $thread->created_at?->format('Y-m-d H:i') }}</span>
+                                <span class="badge">作成 {{ $thread->created_at?->diffForHumans() }} ({{ $thread->created_at?->format('Y/m/d H:i') }})</span>
                                 @if ($thread->latest_post_at)
-                                    <span class="badge">最終返信 {{ \Illuminate\Support\Carbon::parse($thread->latest_post_at)->format('Y-m-d H:i') }}</span>
+                                    @php($latestPostAt = \Illuminate\Support\Carbon::parse($thread->latest_post_at))
+                                    <span class="badge">最終返信 {{ $latestPostAt->diffForHumans() }} ({{ $latestPostAt->format('Y/m/d H:i') }})</span>
                                 @endif
                             </div>
+                            @if ($isAdmin)
+                                <form method="POST" action="{{ route('admin.threads.destroy', $thread) }}" onsubmit="return confirm('このスレッドを削除しますか？');" style="margin-top: 14px;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background:#8c1d18;">このスレを削除</button>
+                                </form>
+                            @endif
                         </article>
                     @endforeach
                 </div>
@@ -59,7 +70,7 @@
 
                 <label>
                     名前
-                    <input type="text" name="name" value="{{ old('name') }}" placeholder="未入力なら名無し">
+                    <input type="text" name="name" value="{{ old('name', $rememberedName) }}" placeholder="未入力なら名無し">
                 </label>
 
                 <label>

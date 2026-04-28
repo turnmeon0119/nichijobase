@@ -107,6 +107,19 @@ class ArticleApiTest extends TestCase
         ]);
     }
 
+    public function test_it_deletes_article_by_id(): void
+    {
+        $this->seed();
+        $article = Article::query()->firstOrFail();
+
+        $response = $this->withHeaders($this->adminHeaders())->deleteJson('/api/articles/id/'.$article->id);
+
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('articles', [
+            'id' => $article->id,
+        ]);
+    }
+
     public function test_it_lists_published_articles(): void
     {
         $this->seed();

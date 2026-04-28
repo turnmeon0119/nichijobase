@@ -13,11 +13,11 @@
                         <p class="meta">
                             {{ $item['kind'] === 'thread' ? '新規スレッド' : '返信' }}
                             / {{ $item['name'] ?: '名無し' }}
-                            / {{ $item['created_at']?->format('Y-m-d H:i') }}
+                            / {{ $item['created_label'] }} ({{ $item['created_exact'] }})
                         </p>
 
                         <h3 class="card-title">
-                            <a href="{{ route('board.show', $item['thread_id']) }}">
+                            <a href="{{ route('board.show', $item['thread_id']).($item['kind'] === 'post' ? '#post-'.$item['id'] : '#thread-'.$item['thread_id']) }}">
                                 {{ $item['title'] ?: 'スレッド' }}
                             </a>
                         </h3>

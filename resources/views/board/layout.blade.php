@@ -179,6 +179,29 @@
                 color: var(--success);
             }
 
+            .admin-banner {
+                margin-bottom: 16px;
+                padding: 14px 16px;
+                border-radius: 16px;
+                background: rgba(140, 29, 24, 0.09);
+                border: 1px solid rgba(140, 29, 24, 0.16);
+                color: #7a1c1c;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .admin-banner form {
+                display: block;
+            }
+
+            .admin-banner button {
+                background: #8c1d18;
+                padding: 10px 14px;
+            }
+
             form {
                 display: grid;
                 gap: 14px;
@@ -261,14 +284,22 @@
         <main class="shell">
             <section class="hero">
                 <h1>日常BASE</h1>
-                <p>番組や記事に紐づく感想、補足、雑談をそのまま残せる掲示板です。API ではなく通常のブラウザ画面として開けます。</p>
+                <p>番組や記事の感想を、気軽にゆるく書いていける場所です。</p>
                 <nav class="hero-nav">
                     <a href="{{ route('board.index') }}">掲示板一覧</a>
                     <a href="{{ route('board.timeline') }}">タイムライン</a>
-                    <a href="/">トップ</a>
-                    <a href="/api/threads">JSON API</a>
                 </nav>
             </section>
+
+            @if (!empty($isAdmin))
+                <div class="admin-banner">
+                    <div>管理モードで表示中です。スレッドIDと削除ボタンが見えています。</div>
+                    <form method="POST" action="{{ route('admin.articles.logout') }}">
+                        @csrf
+                        <button type="submit">管理モードを解除</button>
+                    </form>
+                </div>
+            @endif
 
             @if (session('status'))
                 <div class="status">{{ session('status') }}</div>
