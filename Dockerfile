@@ -18,4 +18,4 @@ COPY . .
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
 RUN composer dump-autoload --optimize --no-dev
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=10000"]
+CMD ["./scripts/render-start.sh"]
