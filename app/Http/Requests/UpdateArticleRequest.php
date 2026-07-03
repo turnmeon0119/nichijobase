@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Article;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +18,15 @@ class UpdateArticleRequest extends FormRequest
      */
     public function rules(): array
     {
+        $article = $this->route('article');
         $currentSlug = (string) $this->route('slug');
+        $uniqueSlug = Rule::unique('articles', 'slug');
+
+        if ($article instanceof Article) {
+            $uniqueSlug->ignore($article->id);
+        } elseif ($currentSlug !== '') {
+            $uniqueSlug->ignore($currentSlug, 'slug');
+        }
 
         return [
             'title' => ['sometimes', 'required', 'string', 'max:255'],
@@ -27,7 +36,7 @@ class UpdateArticleRequest extends FormRequest
                 'string',
                 'max:255',
                 'alpha_dash',
-                Rule::unique('articles', 'slug')->ignore($currentSlug, 'slug'),
+                $uniqueSlug,
             ],
             'excerpt' => ['nullable', 'string'],
             'body' => ['sometimes', 'required', 'string'],

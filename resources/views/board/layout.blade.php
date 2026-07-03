@@ -3,20 +3,19 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $title ?? '掲示板' }}</title>
+        <title>{{ $title ?? '掲示板' }} | 日常BASE</title>
         <style>
             :root {
-                --bg: #f6efe4;
-                --bg-accent: #efe0c8;
-                --surface: rgba(255, 251, 245, 0.9);
-                --surface-strong: #fffdf8;
-                --line: #d7c2a4;
-                --ink: #24170b;
-                --muted: #6c5948;
-                --brand: #b04a1f;
-                --brand-dark: #6b2407;
+                --bg: #f7f7f8;
+                --surface: #fff;
+                --surface-strong: #fff;
+                --line: #d4d4d8;
+                --ink: #171717;
+                --muted: #52525b;
+                --brand: #171717;
+                --brand-dark: #27272a;
                 --success: #265c34;
-                --shadow: 0 18px 40px rgba(71, 39, 14, 0.12);
+                --shadow: 0 10px 30px rgba(24, 24, 27, 0.06);
             }
 
             * {
@@ -26,10 +25,8 @@
             body {
                 margin: 0;
                 color: var(--ink);
-                font-family: Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif;
-                background:
-                    radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 28%),
-                    linear-gradient(135deg, var(--bg) 0%, var(--bg-accent) 45%, #f8f5ef 100%);
+                font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
+                background: var(--bg);
                 min-height: 100vh;
             }
 
@@ -48,10 +45,9 @@
             .thread-card,
             .post-card {
                 background: var(--surface);
-                border: 1px solid rgba(116, 76, 39, 0.16);
-                border-radius: 24px;
+                border: 1px solid #e4e4e7;
+                border-radius: 16px;
                 box-shadow: var(--shadow);
-                backdrop-filter: blur(10px);
             }
 
             .hero {
@@ -62,13 +58,7 @@
             }
 
             .hero::after {
-                content: "";
-                position: absolute;
-                inset: auto -80px -80px auto;
-                width: 220px;
-                height: 220px;
-                border-radius: 999px;
-                background: radial-gradient(circle, rgba(176, 74, 31, 0.24), rgba(176, 74, 31, 0));
+                content: none;
             }
 
             .hero h1 {
@@ -152,7 +142,7 @@
                 margin: 0;
                 white-space: pre-wrap;
                 line-height: 1.8;
-                color: #342214;
+                color: #27272a;
             }
 
             .badge-row {
@@ -166,7 +156,7 @@
                 border: 1px solid var(--line);
                 border-radius: 999px;
                 padding: 6px 10px;
-                background: rgba(255, 255, 255, 0.7);
+                background: #fff;
                 font-size: 0.85rem;
             }
 
@@ -227,7 +217,7 @@
                 border: 1px solid var(--line);
                 border-radius: 14px;
                 padding: 12px 14px;
-                background: rgba(255, 255, 255, 0.75);
+                background: #fff;
                 color: var(--ink);
             }
 
@@ -240,7 +230,7 @@
                 border: 0;
                 border-radius: 999px;
                 padding: 12px 18px;
-                background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+                background: var(--brand);
                 color: white;
                 cursor: pointer;
                 justify-self: start;

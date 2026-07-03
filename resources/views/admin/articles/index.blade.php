@@ -7,9 +7,9 @@
         <style>
             body {
                 margin: 0;
-                background: #f5ede1;
-                color: #24170c;
-                font-family: Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif;
+                background: #f7f7f8;
+                color: #171717;
+                font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
             }
             .shell {
                 width: min(1080px, calc(100% - 24px));
@@ -17,10 +17,10 @@
                 padding: 24px 0 48px;
             }
             .panel {
-                background: rgba(255, 250, 244, 0.92);
-                border: 1px solid rgba(111, 74, 42, 0.18);
-                border-radius: 24px;
-                box-shadow: 0 24px 60px rgba(82, 48, 18, 0.14);
+                background: #fff;
+                border: 1px solid #e4e4e7;
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(24, 24, 27, 0.06);
                 padding: 24px;
             }
             .topbar {
@@ -36,7 +36,7 @@
                 font-size: 2rem;
             }
             p {
-                color: #6f5b49;
+                color: #52525b;
                 line-height: 1.7;
             }
             table {
@@ -46,22 +46,22 @@
             th, td {
                 text-align: left;
                 padding: 14px 10px;
-                border-bottom: 1px solid rgba(111, 74, 42, 0.12);
+                border-bottom: 1px solid #e4e4e7;
                 vertical-align: top;
             }
             th {
-                color: #6f5b49;
+                color: #52525b;
                 font-weight: normal;
             }
             .muted {
-                color: #6f5b49;
+                color: #52525b;
                 font-size: 0.95rem;
             }
             .badge {
                 display: inline-block;
                 padding: 5px 10px;
                 border-radius: 999px;
-                border: 1px solid #d7c2a4;
+                border: 1px solid #d4d4d8;
                 font-size: 0.85rem;
                 background: #fff;
             }
@@ -73,7 +73,7 @@
             button, a {
                 font: inherit;
             }
-            .danger, .secondary {
+            .danger, .primary, .secondary {
                 border: 0;
                 border-radius: 999px;
                 padding: 10px 14px;
@@ -84,10 +84,14 @@
                 background: #8c1d18;
                 color: #fff;
             }
+            .primary {
+                background: #171717;
+                color: #fff;
+            }
             .secondary {
                 background: #fff;
-                color: #24170c;
-                border: 1px solid #d7c2a4;
+                color: #171717;
+                border: 1px solid #d4d4d8;
             }
             .status {
                 margin-bottom: 16px;
@@ -114,10 +118,20 @@
             <section class="panel">
                 <div class="topbar">
                     <div>
-                        <h1>記事管理</h1>
-                        <p>ID と slug を見ながら、管理者だけが削除できます。</p>
+                        <h1>{{ $showingTrash ? '記事のゴミ箱' : '記事管理' }}</h1>
+                        <p>
+                            {{ $showingTrash
+                                ? '削除した記事を復元するか、完全に削除できます。'
+                                : '記事の作成・編集・公開状態の管理ができます。' }}
+                        </p>
                     </div>
                     <div class="actions">
+                        @if ($showingTrash)
+                            <a class="primary" href="{{ route('admin.articles.index') }}">記事一覧へ戻る</a>
+                        @else
+                            <a class="primary" href="{{ route('admin.articles.create') }}">新規作成</a>
+                            <a class="secondary" href="{{ route('admin.articles.trash') }}">ゴミ箱</a>
+                        @endif
                         <a class="secondary" href="{{ route('board.index') }}">掲示板へ</a>
                         <form method="POST" action="{{ route('admin.articles.logout') }}">
                             @csrf
@@ -151,15 +165,42 @@
                                 </td>
                                 <td><code>{{ $article->slug }}</code></td>
                                 <td>
-                                    <span class="badge">{{ $article->is_public ? '公開' : '非公開' }}</span>
+                                    @if ($showingTrash)
+                                        <span class="badge">削除済み</span>
+                                        <div class="muted">{{ $article->deleted_at?->format('Y/m/d H:i') }}</div>
+                                    @elseif (! $article->is_public)
+                                        <span class="badge">下書き</span>
+                                    @elseif (! $article->published_at)
+                                        <span class="badge">公開日時未設定</span>
+                                    @elseif ($article->published_at->isFuture())
+                                        <span class="badge">公開予約</span>
+                                    @else
+                                        <span class="badge">公開中</span>
+                                    @endif
                                 </td>
                                 <td>{{ $article->boardThread?->id ? '#'.$article->boardThread->id : 'なし' }}</td>
                                 <td>
-                                    <form method="POST" action="{{ route('admin.articles.destroy', $article) }}" onsubmit="return confirm('この記事を削除しますか？');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="danger" type="submit">IDで削除</button>
-                                    </form>
+                                    <div class="actions">
+                                        @if ($showingTrash)
+                                            <form method="POST" action="{{ route('admin.articles.restore', $article->id) }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button class="primary" type="submit">復元</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.articles.force-destroy', $article->id) }}" onsubmit="return confirm('この記事を完全に削除します。元に戻せません。よろしいですか？');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="danger" type="submit">完全削除</button>
+                                            </form>
+                                        @else
+                                            <a class="secondary" href="{{ route('admin.articles.edit', $article) }}">編集</a>
+                                            <form method="POST" action="{{ route('admin.articles.destroy', $article) }}" onsubmit="return confirm('この記事をゴミ箱へ移動しますか？');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="danger" type="submit">ゴミ箱へ</button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

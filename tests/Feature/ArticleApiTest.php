@@ -102,9 +102,10 @@ class ArticleApiTest extends TestCase
         $response = $this->withHeaders($this->adminHeaders())->deleteJson('/api/articles/'.$article->slug);
 
         $response->assertNoContent();
-        $this->assertDatabaseMissing('articles', [
+        $this->assertSoftDeleted('articles', [
             'id' => $article->id,
         ]);
+        $this->getJson('/api/articles/'.$article->slug)->assertNotFound();
     }
 
     public function test_it_deletes_article_by_id(): void
@@ -115,7 +116,7 @@ class ArticleApiTest extends TestCase
         $response = $this->withHeaders($this->adminHeaders())->deleteJson('/api/articles/id/'.$article->id);
 
         $response->assertNoContent();
-        $this->assertDatabaseMissing('articles', [
+        $this->assertSoftDeleted('articles', [
             'id' => $article->id,
         ]);
     }

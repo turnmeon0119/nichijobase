@@ -7,9 +7,9 @@
         <style>
             body {
                 margin: 0;
-                background: #f5ede1;
-                color: #24170c;
-                font-family: Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif;
+                background: #f7f7f8;
+                color: #171717;
+                font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
             }
             .shell {
                 width: min(1080px, calc(100% - 24px));
@@ -17,10 +17,10 @@
                 padding: 24px 0 48px;
             }
             .hero, .card {
-                background: rgba(255, 250, 244, 0.92);
-                border: 1px solid rgba(111, 74, 42, 0.18);
-                border-radius: 24px;
-                box-shadow: 0 24px 60px rgba(82, 48, 18, 0.14);
+                background: #fff;
+                border: 1px solid #e4e4e7;
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(24, 24, 27, 0.06);
             }
             .hero {
                 padding: 28px;
@@ -32,7 +32,7 @@
             }
             p {
                 margin: 0;
-                color: #6f5b49;
+                color: #52525b;
                 line-height: 1.8;
             }
             .grid {
@@ -62,12 +62,17 @@
                 padding: 10px 14px;
                 border-radius: 999px;
                 text-decoration: none;
-                border: 1px solid #d7c2a4;
+                border: 1px solid #d4d4d8;
                 background: #fff;
-                color: #24170c;
+                color: #171717;
             }
             .logout {
                 cursor: pointer;
+            }
+            .link {
+                background: #171717;
+                border-color: #171717;
+                color: #fff;
             }
             @media (max-width: 720px) {
                 .grid {

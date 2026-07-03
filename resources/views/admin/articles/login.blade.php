@@ -10,17 +10,17 @@
                 min-height: 100vh;
                 display: grid;
                 place-items: center;
-                background: #f5ede1;
-                color: #24170c;
-                font-family: Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif;
+                background: #f7f7f8;
+                color: #171717;
+                font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
             }
             .card {
                 width: min(480px, calc(100% - 24px));
                 padding: 28px;
-                border-radius: 24px;
-                background: rgba(255, 250, 244, 0.92);
-                border: 1px solid rgba(111, 74, 42, 0.18);
-                box-shadow: 0 24px 60px rgba(82, 48, 18, 0.14);
+                border-radius: 16px;
+                background: #fff;
+                border: 1px solid #e4e4e7;
+                box-shadow: 0 10px 30px rgba(24, 24, 27, 0.06);
             }
             h1 {
                 margin: 0 0 10px;
@@ -28,7 +28,7 @@
             }
             p {
                 margin: 0 0 18px;
-                color: #6f5b49;
+                color: #52525b;
                 line-height: 1.8;
             }
             label {
@@ -43,14 +43,14 @@
                 box-sizing: border-box;
                 padding: 12px 14px;
                 border-radius: 14px;
-                border: 1px solid #d7c2a4;
+                border: 1px solid #d4d4d8;
             }
             button {
                 margin-top: 16px;
                 border: 0;
                 border-radius: 999px;
                 padding: 12px 18px;
-                background: linear-gradient(135deg, #b04a1f, #6b2407);
+                background: #171717;
                 color: #fff;
                 cursor: pointer;
             }

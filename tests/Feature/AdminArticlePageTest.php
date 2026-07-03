@@ -54,7 +54,7 @@ class AdminArticlePageTest extends TestCase
             ->assertSee('#'.$article->id);
     }
 
-    public function test_admin_can_delete_article_from_admin_page(): void
+    public function test_admin_can_move_article_to_trash(): void
     {
         $article = Article::query()->create([
             'title' => '削除対象記事',
@@ -69,8 +69,122 @@ class AdminArticlePageTest extends TestCase
             ->delete('/admin/articles/'.$article->id);
 
         $response->assertRedirect(route('admin.articles.index'));
+        $this->assertSoftDeleted('articles', [
+            'id' => $article->id,
+        ]);
+    }
+
+    public function test_admin_can_restore_article_from_trash(): void
+    {
+        $article = Article::query()->create([
+            'title' => '復元対象記事',
+            'slug' => 'restore-target',
+            'body' => '本文',
+            'is_public' => false,
+        ]);
+        $article->delete();
+
+        $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->patch('/admin/articles/'.$article->id.'/restore');
+
+        $response->assertRedirect(route('admin.articles.trash'));
+        $this->assertNotSoftDeleted('articles', [
+            'id' => $article->id,
+        ]);
+    }
+
+    public function test_admin_can_permanently_delete_article_from_trash(): void
+    {
+        $article = Article::query()->create([
+            'title' => '完全削除対象記事',
+            'slug' => 'force-delete-target',
+            'body' => '本文',
+            'is_public' => false,
+        ]);
+        $article->delete();
+
+        $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->delete('/admin/articles/'.$article->id.'/force');
+
+        $response->assertRedirect(route('admin.articles.trash'));
         $this->assertDatabaseMissing('articles', [
             'id' => $article->id,
         ]);
+    }
+
+    public function test_admin_can_create_draft_article(): void
+    {
+        $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->post('/admin/articles', [
+                'title' => '下書き記事',
+                'slug' => 'draft-article',
+                'excerpt' => '概要',
+                'body' => '本文',
+                'type' => 'editorial',
+                'published_at' => null,
+                'is_public' => '0',
+            ]);
+
+        $article = Article::query()->where('slug', 'draft-article')->firstOrFail();
+
+        $response->assertRedirect(route('admin.articles.edit', $article));
+        $this->assertDatabaseHas('articles', [
+            'id' => $article->id,
+            'title' => '下書き記事',
+            'is_public' => false,
+        ]);
+    }
+
+    public function test_admin_can_edit_and_publish_article(): void
+    {
+        $article = Article::query()->create([
+            'title' => '編集前',
+            'slug' => 'before-edit',
+            'body' => '編集前本文',
+            'type' => 'episode',
+            'published_at' => null,
+            'is_public' => false,
+        ]);
+
+        $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->put('/admin/articles/'.$article->id, [
+                'title' => '編集後',
+                'slug' => 'after-edit',
+                'excerpt' => '更新概要',
+                'body' => '編集後本文',
+                'type' => 'editorial',
+                'published_at' => now()->subMinute()->format('Y-m-d H:i:s'),
+                'is_public' => '1',
+            ]);
+
+        $response->assertRedirect(route('admin.articles.edit', $article));
+        $this->assertDatabaseHas('articles', [
+            'id' => $article->id,
+            'title' => '編集後',
+            'slug' => 'after-edit',
+            'is_public' => true,
+        ]);
+    }
+
+    public function test_admin_article_form_validates_duplicate_slug(): void
+    {
+        Article::query()->create([
+            'title' => '既存記事',
+            'slug' => 'existing-slug',
+            'body' => '本文',
+            'is_public' => false,
+        ]);
+
+        $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->from('/admin/articles/create')
+            ->post('/admin/articles', [
+                'title' => '重複記事',
+                'slug' => 'existing-slug',
+                'body' => '本文',
+                'is_public' => '0',
+            ]);
+
+        $response->assertRedirect('/admin/articles/create')
+            ->assertSessionHasErrors('slug');
     }
 }
