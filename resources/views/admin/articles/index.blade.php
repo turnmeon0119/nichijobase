@@ -132,7 +132,7 @@
                             <a class="primary" href="{{ route('admin.articles.create') }}">新規作成</a>
                             <a class="secondary" href="{{ route('admin.articles.trash') }}">ゴミ箱</a>
                         @endif
-                        <a class="secondary" href="{{ route('board.index') }}">掲示板へ</a>
+                        <a class="secondary" href="{{ route('admin.board.index') }}">掲示板へ</a>
                         <form method="POST" action="{{ route('admin.articles.logout') }}">
                             @csrf
                             <button class="secondary" type="submit">ログアウト</button>

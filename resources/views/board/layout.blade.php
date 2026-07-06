@@ -276,8 +276,8 @@
                 <h1>日常BASE</h1>
                 <p>番組や記事の感想を、気軽にゆるく書いていける場所です。</p>
                 <nav class="hero-nav">
-                    <a href="{{ route('board.index') }}">掲示板一覧</a>
-                    <a href="{{ route('board.timeline') }}">タイムライン</a>
+                    <a href="{{ route('admin.board.index') }}">掲示板一覧</a>
+                    <a href="{{ route('admin.board.timeline') }}">タイムライン</a>
                 </nav>
             </section>
 

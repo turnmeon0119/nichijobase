@@ -5,7 +5,7 @@
         <section class="panel">
             <h2 class="section-title">スレッド一覧</h2>
             <p class="meta" style="margin-top: -6px; margin-bottom: 18px;">
-                Twitter 風に新着を流し見したい場合は <a href="{{ route('board.timeline') }}">タイムライン</a> を使えます。
+                Twitter 風に新着を流し見したい場合は <a href="{{ route('admin.board.timeline') }}">タイムライン</a> を使えます。
             </p>
 
             @if ($threads->isEmpty())
@@ -21,7 +21,7 @@
                                 <div class="meta" style="margin-bottom: 10px;">管理用ID: #{{ $thread->id }}</div>
                             @endif
                             <h3 class="card-title">
-                                <a href="{{ route('board.show', $thread) }}">{{ $thread->title }}</a>
+                                <a href="{{ route('admin.board.show', $thread) }}">{{ $thread->title }}</a>
                             </h3>
                             <p class="card-body">{{ $thread->body }}</p>
                             <div class="badge-row">
@@ -33,7 +33,7 @@
                                 @endif
                             </div>
                             @if ($isAdmin)
-                                <form method="POST" action="{{ route('admin.threads.destroy', $thread) }}" onsubmit="return confirm('このスレッドを削除しますか？');" style="margin-top: 14px;">
+                                <form method="POST" action="{{ route('admin.board.destroy', $thread) }}" onsubmit="return confirm('このスレッドを削除しますか？');" style="margin-top: 14px;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" style="background:#8c1d18;">このスレを削除</button>
@@ -48,7 +48,7 @@
         <aside class="panel">
             <h2 class="section-title">新規スレッド作成</h2>
 
-            <form method="POST" action="{{ route('board.store') }}">
+            <form method="POST" action="{{ route('admin.board.store') }}">
                 @csrf
 
                 <label>

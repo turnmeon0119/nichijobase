@@ -5,7 +5,7 @@
         <h2 class="section-title">タイムライン</h2>
 
         @if ($items->isEmpty())
-            <p class="empty">まだ投稿がありません。まずは <a href="{{ route('board.index') }}">掲示板一覧</a> からスレッドを作ってください。</p>
+            <p class="empty">まだ投稿がありません。まずは <a href="{{ route('admin.board.index') }}">掲示板一覧</a> からスレッドを作ってください。</p>
         @else
             <div class="post-list">
                 @foreach ($items as $item)
@@ -17,7 +17,7 @@
                         </p>
 
                         <h3 class="card-title">
-                            <a href="{{ route('board.show', $item['thread_id']).($item['kind'] === 'post' ? '#post-'.$item['id'] : '#thread-'.$item['thread_id']) }}">
+                            <a href="{{ route('admin.board.show', $item['thread_id']).($item['kind'] === 'post' ? '#post-'.$item['id'] : '#thread-'.$item['thread_id']) }}">
                                 {{ $item['title'] ?: 'スレッド' }}
                             </a>
                         </h3>

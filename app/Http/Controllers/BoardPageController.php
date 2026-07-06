@@ -153,7 +153,7 @@ class BoardPageController extends Controller
         $this->storeRememberedName($request, $validated['name'] ?? null);
 
         return redirect()
-            ->to(route('board.show', $thread).'#thread-'.$thread->id)
+            ->to(route('admin.board.show', $thread).'#thread-'.$thread->id)
             ->with('status', 'スレッドを作成しました。');
     }
 
@@ -176,7 +176,7 @@ class BoardPageController extends Controller
         $this->storeRememberedName($request, $validated['name'] ?? null);
 
         return redirect()
-            ->to(route('board.show', $thread).'#post-'.$post->id)
+            ->to(route('admin.board.show', $thread).'#post-'.$post->id)
             ->with('status', '返信を投稿しました。');
     }
 
@@ -185,7 +185,7 @@ class BoardPageController extends Controller
         $thread->delete();
 
         return redirect()
-            ->route('board.index')
+            ->route('admin.board.index')
             ->with('status', 'スレッドを削除しました。');
     }
 }

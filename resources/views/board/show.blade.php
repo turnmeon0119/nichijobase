@@ -1,7 +1,7 @@
 @extends('board.layout', ['title' => $thread->title])
 
 @section('content')
-    <a class="back-link" href="{{ route('board.index') }}">← 掲示板一覧へ戻る</a>
+    <a class="back-link" href="{{ route('admin.board.index') }}">← 掲示板一覧へ戻る</a>
 
     <div class="grid two">
         <section class="panel">
@@ -18,7 +18,7 @@
                 </p>
                 <p class="card-body">{{ $thread->body }}</p>
                 @if ($isAdmin)
-                    <form method="POST" action="{{ route('admin.threads.destroy', $thread) }}" onsubmit="return confirm('このスレッドを削除しますか？');" style="margin-top: 14px;">
+                    <form method="POST" action="{{ route('admin.board.destroy', $thread) }}" onsubmit="return confirm('このスレッドを削除しますか？');" style="margin-top: 14px;">
                         @csrf
                         @method('DELETE')
                         <button type="submit" style="background:#8c1d18;">このスレを削除</button>
@@ -47,7 +47,7 @@
         <aside class="panel">
             <h3 class="section-title">返信する</h3>
 
-            <form method="POST" action="{{ route('board.posts.store', $thread) }}">
+            <form method="POST" action="{{ route('admin.board.posts.store', $thread) }}">
                 @csrf
 
                 <label>

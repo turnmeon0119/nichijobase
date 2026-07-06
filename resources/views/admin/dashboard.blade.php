@@ -88,7 +88,7 @@
                 <p>記事管理と掲示板管理の入口です。削除や確認をするときは、ここから使い分けます。</p>
                 <div class="actions">
                     <a class="link" href="{{ route('admin.articles.index') }}">記事を管理する</a>
-                    <a class="link" href="{{ route('board.index') }}">掲示板を管理モードで開く</a>
+                    <a class="link" href="{{ route('admin.board.index') }}">掲示板を管理モードで開く</a>
                     <form method="POST" action="{{ route('admin.articles.logout') }}">
                         @csrf
                         <button class="logout" type="submit">ログアウト</button>
