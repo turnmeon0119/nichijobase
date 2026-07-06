@@ -11,6 +11,8 @@ class BoardPost extends Model
         'board_thread_id',
         'name',
         'body',
+        'image_url',
+        'image_public_id',
         'created_ip',
         'is_hidden',
         'reports_count',

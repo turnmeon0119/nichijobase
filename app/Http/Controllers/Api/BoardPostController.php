@@ -5,19 +5,27 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBoardPostRequest;
 use App\Models\BoardThread;
+use App\Services\CloudinaryImageService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BoardPostController extends Controller
 {
+    public function __construct(private readonly CloudinaryImageService $images) {}
+
     public function store(StoreBoardPostRequest $request, BoardThread $thread): JsonResponse
     {
         if ($thread->is_hidden) {
             throw new NotFoundHttpException();
         }
 
+        $image = $request->hasFile('image')
+            ? $this->images->upload($request->file('image'))
+            : [];
+
         $post = $thread->posts()->create([
-            ...$request->validated(),
+            ...$request->safe()->except('image'),
+            ...$image,
             'name' => $request->input('name') ?: null,
             'created_ip' => $request->ip(),
         ]);
@@ -28,6 +36,7 @@ class BoardPostController extends Controller
                 'board_thread_id' => $thread->id,
                 'name' => $post->name,
                 'body' => $post->body,
+                'image_url' => $post->image_url,
                 'created_at' => $post->created_at,
             ],
         ], 201);
@@ -36,6 +45,7 @@ class BoardPostController extends Controller
     public function destroy(BoardThread $thread, int $post): JsonResponse
     {
         $target = $thread->posts()->whereKey($post)->firstOrFail();
+        $this->images->delete($target->image_public_id);
         $target->delete();
 
         return response()->json([], 204);

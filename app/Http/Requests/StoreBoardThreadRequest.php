@@ -27,6 +27,7 @@ class StoreBoardThreadRequest extends FormRequest
             'title' => ['required', 'string', 'max:120'],
             'name' => ['nullable', 'string', 'max:40'],
             'body' => ['required', 'string', 'max:5000'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
         ];
     }
 }

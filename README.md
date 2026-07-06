@@ -65,6 +65,9 @@ Main values in `.env`:
 - `DB_PASSWORD=password`
 - `CORS_ALLOWED_ORIGINS=http://localhost:3000`
 - `ADMIN_API_TOKEN=local-dev-token`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 
 ## Render Deploy
 

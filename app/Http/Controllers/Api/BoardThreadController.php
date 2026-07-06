@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBoardThreadRequest;
 use App\Models\Article;
 use App\Models\BoardThread;
+use App\Services\CloudinaryImageService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BoardThreadController extends Controller
 {
+    public function __construct(private readonly CloudinaryImageService $images) {}
+
     private function formatThread(BoardThread $thread, bool $includePosts = false): array
     {
         $payload = [
@@ -19,6 +22,7 @@ class BoardThreadController extends Controller
             'title' => $thread->title,
             'name' => $thread->name,
             'body' => $thread->body,
+            'image_url' => $thread->image_url,
             'created_at' => $thread->created_at,
             'reports_count' => $thread->reports_count,
             'article' => $thread->article ? [
@@ -33,6 +37,7 @@ class BoardThreadController extends Controller
                 'id' => $post->id,
                 'name' => $post->name,
                 'body' => $post->body,
+                'image_url' => $post->image_url,
                 'created_at' => $post->created_at,
             ])->all();
         }
@@ -48,7 +53,7 @@ class BoardThreadController extends Controller
             ->withCount(['posts as posts_count' => fn ($query) => $query->where('is_hidden', false)])
             ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at')
             ->orderByDesc('updated_at')
-            ->get(['id', 'article_id', 'title', 'name', 'body', 'created_at', 'reports_count']);
+            ->get(['id', 'article_id', 'title', 'name', 'body', 'image_url', 'created_at', 'reports_count']);
 
         return response()->json([
             'data' => $threads->map(fn (BoardThread $thread): array => [
@@ -77,8 +82,13 @@ class BoardThreadController extends Controller
 
     public function store(StoreBoardThreadRequest $request): JsonResponse
     {
+        $image = $request->hasFile('image')
+            ? $this->images->upload($request->file('image'))
+            : [];
+
         $thread = BoardThread::query()->create([
-            ...$request->validated(),
+            ...$request->safe()->except('image'),
+            ...$image,
             'name' => $request->input('name') ?: null,
             'created_ip' => $request->ip(),
         ]);
@@ -112,6 +122,11 @@ class BoardThreadController extends Controller
 
     public function destroy(BoardThread $thread): JsonResponse
     {
+        $thread->load('posts:id,board_thread_id,image_public_id');
+        foreach ($thread->posts as $post) {
+            $this->images->delete($post->image_public_id);
+        }
+        $this->images->delete($thread->image_public_id);
         $thread->delete();
 
         return response()->json([], 204);

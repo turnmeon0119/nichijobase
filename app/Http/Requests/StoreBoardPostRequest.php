@@ -19,6 +19,7 @@ class StoreBoardPostRequest extends FormRequest
         return [
             'name' => ['nullable', 'string', 'max:40'],
             'body' => ['required', 'string', 'max:5000'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
         ];
     }
 }

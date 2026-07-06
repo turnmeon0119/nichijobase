@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\BoardPost;
 use App\Models\BoardThread;
+use App\Services\CloudinaryImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BoardPageController extends Controller
 {
+    public function __construct(private readonly CloudinaryImageService $images) {}
+
     private function formatTimestamp(?Carbon $timestamp): array
     {
         if ($timestamp === null) {
@@ -182,6 +185,11 @@ class BoardPageController extends Controller
 
     public function destroy(BoardThread $thread): RedirectResponse
     {
+        $thread->load('posts:id,board_thread_id,image_public_id');
+        foreach ($thread->posts as $post) {
+            $this->images->delete($post->image_public_id);
+        }
+        $this->images->delete($thread->image_public_id);
         $thread->delete();
 
         return redirect()
