@@ -2,6 +2,10 @@
 
 Laravel API for podcast articles and anonymous board.
 
+Public frontend:
+
+- [turnmeon0119/nichijobase-front](https://github.com/turnmeon0119/nichijobase-front)
+
 ## Stack
 
 - Laravel 12 (PHP)
@@ -128,6 +132,16 @@ Header example:
 ```http
 X-Admin-Token: local-dev-token
 ```
+
+## Admin Pages
+
+Laravel serves only the API and authenticated administration pages.
+Public pages are provided by the Next.js frontend.
+
+- `/admin/articles/login`
+- `/admin`
+- `/admin/articles`
+- `/admin/board`
 
 ## Quick Examples
 
