@@ -21,9 +21,24 @@ class BoardApiTest extends TestCase
         ];
     }
 
-    public function test_it_creates_thread_without_auth(): void
+    private function createArticle(string $slug): Article
     {
+        return Article::query()->create([
+            'title' => '記事 '.$slug,
+            'slug' => $slug,
+            'body' => '本文',
+            'type' => 'episode',
+            'published_at' => now()->subDay(),
+            'is_public' => true,
+        ]);
+    }
+
+    public function test_it_creates_article_thread_without_auth(): void
+    {
+        $article = $this->createArticle('anonymous-thread');
+
         $response = $this->postJson('/api/threads', [
+            'article_id' => $article->id,
             'title' => '雑談スレ',
             'name' => '名無し',
             'body' => 'こんにちは',
@@ -40,7 +55,9 @@ class BoardApiTest extends TestCase
 
     public function test_it_lists_threads(): void
     {
+        $article = $this->createArticle('listed-thread');
         BoardThread::query()->create([
+            'article_id' => $article->id,
             'title' => 'テストスレ',
             'body' => '本文',
         ]);
@@ -57,7 +74,10 @@ class BoardApiTest extends TestCase
 
     public function test_it_sorts_threads_by_popular_reactions(): void
     {
+        $popularArticle = $this->createArticle('popular-thread');
+        $latestArticle = $this->createArticle('latest-thread');
         $popular = BoardThread::query()->create([
+            'article_id' => $popularArticle->id,
             'title' => '人気スレ',
             'body' => '本文',
             'empathy_count' => 3,
@@ -65,6 +85,7 @@ class BoardApiTest extends TestCase
         ]);
 
         $latest = BoardThread::query()->create([
+            'article_id' => $latestArticle->id,
             'title' => '新着スレ',
             'body' => '本文',
         ]);
@@ -83,15 +104,21 @@ class BoardApiTest extends TestCase
 
     public function test_it_searches_threads_by_title_and_body(): void
     {
+        $laravelArticle = $this->createArticle('laravel-thread');
+        $nextArticle = $this->createArticle('next-thread');
+        $chatArticle = $this->createArticle('chat-thread');
         BoardThread::query()->create([
+            'article_id' => $laravelArticle->id,
             'title' => 'Laravelの話',
             'body' => 'バックエンドについて',
         ]);
         BoardThread::query()->create([
+            'article_id' => $nextArticle->id,
             'title' => 'フロントエンド',
             'body' => 'Next.jsとTypeScriptについて',
         ]);
         BoardThread::query()->create([
+            'article_id' => $chatArticle->id,
             'title' => '雑談',
             'body' => '今日のできごと',
         ]);
@@ -111,6 +138,15 @@ class BoardApiTest extends TestCase
     {
         $this->getJson('/api/threads?q='.str_repeat('a', 101))
             ->assertUnprocessable();
+    }
+
+    public function test_it_requires_article_when_creating_thread(): void
+    {
+        $this->postJson('/api/threads', [
+            'title' => '自由投稿',
+            'body' => '本文',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('article_id');
     }
 
     public function test_it_posts_reply_without_auth(): void

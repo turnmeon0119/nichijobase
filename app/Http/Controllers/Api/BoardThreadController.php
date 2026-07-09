@@ -58,6 +58,7 @@ class BoardThreadController extends Controller
 
         $query = BoardThread::query()
             ->where('is_hidden', false)
+            ->whereNotNull('article_id')
             ->with('article:id,slug,title')
             ->withCount(['posts as posts_count' => fn ($query) => $query->where('is_hidden', false)])
             ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at');
