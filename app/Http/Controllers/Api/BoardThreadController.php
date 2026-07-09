@@ -8,6 +8,7 @@ use App\Models\Article;
 use App\Models\BoardThread;
 use App\Services\CloudinaryImageService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BoardThreadController extends Controller
@@ -25,6 +26,8 @@ class BoardThreadController extends Controller
             'image_url' => $thread->image_url,
             'created_at' => $thread->created_at,
             'reports_count' => $thread->reports_count,
+            'empathy_count' => $thread->empathy_count,
+            'perspective_count' => $thread->perspective_count,
             'article' => $thread->article ? [
                 'id' => $thread->article->id,
                 'slug' => $thread->article->slug,
@@ -53,7 +56,10 @@ class BoardThreadController extends Controller
             ->withCount(['posts as posts_count' => fn ($query) => $query->where('is_hidden', false)])
             ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at')
             ->orderByDesc('updated_at')
-            ->get(['id', 'article_id', 'title', 'name', 'body', 'image_url', 'created_at', 'reports_count']);
+            ->get([
+                'id', 'article_id', 'title', 'name', 'body', 'image_url', 'created_at',
+                'reports_count', 'empathy_count', 'perspective_count',
+            ]);
 
         return response()->json([
             'data' => $threads->map(fn (BoardThread $thread): array => [
@@ -140,6 +146,28 @@ class BoardThreadController extends Controller
             'data' => [
                 'id' => $thread->id,
                 'reports_count' => $thread->reports_count,
+            ],
+        ]);
+    }
+
+    public function react(Request $request, BoardThread $thread): JsonResponse
+    {
+        if ($thread->is_hidden) {
+            throw new NotFoundHttpException();
+        }
+
+        $validated = $request->validate([
+            'type' => ['required', 'in:empathy,perspective'],
+        ]);
+        $column = $validated['type'].'_count';
+
+        $thread->increment($column);
+        $thread->refresh();
+
+        return response()->json([
+            'data' => [
+                'empathy_count' => $thread->empathy_count,
+                'perspective_count' => $thread->perspective_count,
             ],
         ]);
     }

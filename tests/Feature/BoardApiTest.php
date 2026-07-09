@@ -215,6 +215,35 @@ class BoardApiTest extends TestCase
         ]);
     }
 
+    public function test_it_reacts_to_thread_without_auth(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => 'リアクション対象',
+            'body' => '本文',
+        ]);
+
+        $this->postJson('/api/threads/'.$thread->id.'/reactions', ['type' => 'empathy'])
+            ->assertOk()
+            ->assertJsonPath('data.empathy_count', 1)
+            ->assertJsonPath('data.perspective_count', 0);
+
+        $this->postJson('/api/threads/'.$thread->id.'/reactions', ['type' => 'perspective'])
+            ->assertOk()
+            ->assertJsonPath('data.empathy_count', 1)
+            ->assertJsonPath('data.perspective_count', 1);
+    }
+
+    public function test_it_rejects_invalid_reaction_type(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => 'リアクション対象',
+            'body' => '本文',
+        ]);
+
+        $this->postJson('/api/threads/'.$thread->id.'/reactions', ['type' => 'bad'])
+            ->assertUnprocessable();
+    }
+
     public function test_it_reports_post_without_auth(): void
     {
         $thread = BoardThread::query()->create([

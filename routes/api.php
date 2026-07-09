@@ -13,6 +13,7 @@ Route::get('/threads/{thread}', [BoardThreadController::class, 'show']);
 Route::post('/threads', [BoardThreadController::class, 'store'])->middleware('throttle:20,1');
 Route::post('/threads/{thread}/posts', [BoardPostController::class, 'store'])->middleware('throttle:40,1');
 Route::post('/threads/{thread}/report', [BoardThreadController::class, 'report'])->middleware('throttle:10,1');
+Route::post('/threads/{thread}/reactions', [BoardThreadController::class, 'react'])->middleware('throttle:10,1');
 Route::post('/threads/{thread}/posts/{post}/report', [BoardPostController::class, 'report'])->middleware('throttle:20,1');
 
 Route::middleware('admin.api.token')->group(function (): void {
