@@ -48,13 +48,23 @@ class BoardThreadController extends Controller
         return $payload;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $threads = BoardThread::query()
+        $sort = $request->validate([
+            'sort' => ['sometimes', 'in:latest,popular'],
+        ])['sort'] ?? 'latest';
+
+        $query = BoardThread::query()
             ->where('is_hidden', false)
             ->with('article:id,slug,title')
             ->withCount(['posts as posts_count' => fn ($query) => $query->where('is_hidden', false)])
-            ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at')
+            ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at');
+
+        if ($sort === 'popular') {
+            $query->orderByRaw('(empathy_count + perspective_count) DESC');
+        }
+
+        $threads = $query
             ->orderByDesc('updated_at')
             ->get([
                 'id', 'article_id', 'title', 'name', 'body', 'image_url', 'created_at',

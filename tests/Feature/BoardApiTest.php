@@ -55,6 +55,32 @@ class BoardApiTest extends TestCase
             ]);
     }
 
+    public function test_it_sorts_threads_by_popular_reactions(): void
+    {
+        $popular = BoardThread::query()->create([
+            'title' => '人気スレ',
+            'body' => '本文',
+            'empathy_count' => 3,
+            'perspective_count' => 2,
+        ]);
+
+        $latest = BoardThread::query()->create([
+            'title' => '新着スレ',
+            'body' => '本文',
+        ]);
+
+        $this->getJson('/api/threads?sort=popular')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $popular->id)
+            ->assertJsonPath('data.1.id', $latest->id);
+    }
+
+    public function test_it_rejects_invalid_thread_sort(): void
+    {
+        $this->getJson('/api/threads?sort=invalid')
+            ->assertUnprocessable();
+    }
+
     public function test_it_posts_reply_without_auth(): void
     {
         $thread = BoardThread::query()->create([
