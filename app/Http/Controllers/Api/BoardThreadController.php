@@ -52,13 +52,23 @@ class BoardThreadController extends Controller
     {
         $sort = $request->validate([
             'sort' => ['sometimes', 'in:latest,popular'],
+            'q' => ['sometimes', 'nullable', 'string', 'max:100'],
         ])['sort'] ?? 'latest';
+        $keyword = trim((string) $request->query('q', ''));
 
         $query = BoardThread::query()
             ->where('is_hidden', false)
             ->with('article:id,slug,title')
             ->withCount(['posts as posts_count' => fn ($query) => $query->where('is_hidden', false)])
             ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at');
+
+        if ($keyword !== '') {
+            $query->where(function ($query) use ($keyword): void {
+                $query
+                    ->where('title', 'like', '%'.$keyword.'%')
+                    ->orWhere('body', 'like', '%'.$keyword.'%');
+            });
+        }
 
         if ($sort === 'popular') {
             $query->orderByRaw('(empathy_count + perspective_count) DESC');

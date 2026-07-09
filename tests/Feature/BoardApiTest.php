@@ -81,6 +81,38 @@ class BoardApiTest extends TestCase
             ->assertUnprocessable();
     }
 
+    public function test_it_searches_threads_by_title_and_body(): void
+    {
+        BoardThread::query()->create([
+            'title' => 'Laravelの話',
+            'body' => 'バックエンドについて',
+        ]);
+        BoardThread::query()->create([
+            'title' => 'フロントエンド',
+            'body' => 'Next.jsとTypeScriptについて',
+        ]);
+        BoardThread::query()->create([
+            'title' => '雑談',
+            'body' => '今日のできごと',
+        ]);
+
+        $this->getJson('/api/threads?q=Laravel')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.title', 'Laravelの話');
+
+        $this->getJson('/api/threads?q=TypeScript')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.title', 'フロントエンド');
+    }
+
+    public function test_it_rejects_too_long_thread_search_keyword(): void
+    {
+        $this->getJson('/api/threads?q='.str_repeat('a', 101))
+            ->assertUnprocessable();
+    }
+
     public function test_it_posts_reply_without_auth(): void
     {
         $thread = BoardThread::query()->create([
