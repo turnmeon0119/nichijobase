@@ -3,12 +3,15 @@
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\BoardPostController;
 use App\Http\Controllers\Api\BoardThreadController;
+use App\Http\Controllers\Api\NewsItemController;
 use App\Http\Controllers\Api\OgiriAnswerController;
 use App\Http\Controllers\Api\OgiriPromptController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+Route::get('/news', [NewsItemController::class, 'index']);
+Route::get('/news/{slug}', [NewsItemController::class, 'show']);
 Route::get('/articles/{slug}/thread', [BoardThreadController::class, 'showByArticle']);
 Route::get('/threads', [BoardThreadController::class, 'index']);
 Route::get('/threads/{thread}', [BoardThreadController::class, 'show']);

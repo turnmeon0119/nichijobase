@@ -41,7 +41,7 @@
             .actions {
                 margin-top: 30px;
                 display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
                 gap: 14px;
             }
             a, button {
@@ -103,6 +103,10 @@
                     <a class="link" href="{{ route('admin.articles.index') }}">
                         <strong>記事管理</strong>
                         <span>記事の作成・編集・削除、公開状態を確認します。</span>
+                    </a>
+                    <a class="link" href="{{ route('admin.news.index') }}">
+                        <strong>News管理</strong>
+                        <span>お知らせ・更新情報・イベント告知を作成します。</span>
                     </a>
                     <a class="link" href="{{ route('admin.board.index') }}">
                         <strong>掲示板管理</strong>

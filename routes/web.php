@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminArticlePageController;
+use App\Http\Controllers\AdminNewsPageController;
 use App\Http\Controllers\AdminOgiriPageController;
 use App\Http\Controllers\BoardPageController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,12 @@ Route::middleware('admin.web.token')->group(function (): void {
     Route::delete('/admin/articles/{article}', [AdminArticlePageController::class, 'destroy'])->name('admin.articles.destroy');
     Route::patch('/admin/articles/{article}/restore', [AdminArticlePageController::class, 'restore'])->name('admin.articles.restore');
     Route::delete('/admin/articles/{article}/force', [AdminArticlePageController::class, 'forceDestroy'])->name('admin.articles.force-destroy');
+    Route::get('/admin/news', [AdminNewsPageController::class, 'index'])->name('admin.news.index');
+    Route::get('/admin/news/create', [AdminNewsPageController::class, 'create'])->name('admin.news.create');
+    Route::post('/admin/news', [AdminNewsPageController::class, 'store'])->name('admin.news.store');
+    Route::get('/admin/news/{newsItem}/edit', [AdminNewsPageController::class, 'edit'])->name('admin.news.edit');
+    Route::put('/admin/news/{newsItem}', [AdminNewsPageController::class, 'update'])->name('admin.news.update');
+    Route::delete('/admin/news/{newsItem}', [AdminNewsPageController::class, 'destroy'])->name('admin.news.destroy');
     Route::get('/admin/ogiri', [AdminOgiriPageController::class, 'index'])->name('admin.ogiri.index');
     Route::get('/admin/ogiri/create', [AdminOgiriPageController::class, 'create'])->name('admin.ogiri.create');
     Route::post('/admin/ogiri', [AdminOgiriPageController::class, 'store'])->name('admin.ogiri.store');
