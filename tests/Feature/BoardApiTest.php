@@ -338,6 +338,43 @@ class BoardApiTest extends TestCase
             ->assertUnprocessable();
     }
 
+    public function test_it_reacts_to_post_without_auth(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => '返信リアクション対象',
+            'body' => '本文',
+        ]);
+
+        $post = $thread->posts()->create([
+            'body' => '返信本文',
+        ]);
+
+        $this->postJson('/api/threads/'.$thread->id.'/posts/'.$post->id.'/reactions', ['type' => 'empathy'])
+            ->assertOk()
+            ->assertJsonPath('data.empathy_count', 1)
+            ->assertJsonPath('data.perspective_count', 0);
+
+        $this->postJson('/api/threads/'.$thread->id.'/posts/'.$post->id.'/reactions', ['type' => 'perspective'])
+            ->assertOk()
+            ->assertJsonPath('data.empathy_count', 1)
+            ->assertJsonPath('data.perspective_count', 1);
+    }
+
+    public function test_it_rejects_invalid_post_reaction_type(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => '返信リアクション対象',
+            'body' => '本文',
+        ]);
+
+        $post = $thread->posts()->create([
+            'body' => '返信本文',
+        ]);
+
+        $this->postJson('/api/threads/'.$thread->id.'/posts/'.$post->id.'/reactions', ['type' => 'bad'])
+            ->assertUnprocessable();
+    }
+
     public function test_it_reports_post_without_auth(): void
     {
         $thread = BoardThread::query()->create([

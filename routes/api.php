@@ -15,6 +15,7 @@ Route::post('/threads/{thread}/posts', [BoardPostController::class, 'store'])->m
 Route::post('/threads/{thread}/report', [BoardThreadController::class, 'report'])->middleware('throttle:10,1');
 Route::post('/threads/{thread}/reactions', [BoardThreadController::class, 'react'])->middleware('throttle:10,1');
 Route::post('/threads/{thread}/posts/{post}/report', [BoardPostController::class, 'report'])->middleware('throttle:20,1');
+Route::post('/threads/{thread}/posts/{post}/reactions', [BoardPostController::class, 'react'])->middleware('throttle:20,1');
 
 Route::middleware('admin.api.token')->group(function (): void {
     Route::post('/articles', [ArticleController::class, 'store']);

@@ -41,6 +41,8 @@ class BoardThreadController extends Controller
                 'name' => $post->name,
                 'body' => $post->body,
                 'image_url' => $post->image_url,
+                'empathy_count' => $post->empathy_count,
+                'perspective_count' => $post->perspective_count,
                 'created_at' => $post->created_at,
             ])->all();
         }

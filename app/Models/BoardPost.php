@@ -16,6 +16,8 @@ class BoardPost extends Model
         'created_ip',
         'is_hidden',
         'reports_count',
+        'empathy_count',
+        'perspective_count',
     ];
 
     public function thread(): BelongsTo

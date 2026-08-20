@@ -7,6 +7,7 @@ use App\Http\Requests\StoreBoardPostRequest;
 use App\Models\BoardThread;
 use App\Services\CloudinaryImageService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class BoardPostController extends Controller
@@ -37,6 +38,8 @@ class BoardPostController extends Controller
                 'name' => $post->name,
                 'body' => $post->body,
                 'image_url' => $post->image_url,
+                'empathy_count' => $post->empathy_count,
+                'perspective_count' => $post->perspective_count,
                 'created_at' => $post->created_at,
             ],
         ], 201);
@@ -64,6 +67,29 @@ class BoardPostController extends Controller
             'data' => [
                 'id' => $target->id,
                 'reports_count' => $target->reports_count,
+            ],
+        ]);
+    }
+
+    public function react(Request $request, BoardThread $thread, int $post): JsonResponse
+    {
+        if ($thread->is_hidden) {
+            throw new NotFoundHttpException();
+        }
+
+        $target = $thread->posts()->whereKey($post)->where('is_hidden', false)->firstOrFail();
+        $validated = $request->validate([
+            'type' => ['required', 'in:empathy,perspective'],
+        ]);
+        $column = $validated['type'].'_count';
+
+        $target->increment($column);
+        $target->refresh();
+
+        return response()->json([
+            'data' => [
+                'empathy_count' => $target->empathy_count,
+                'perspective_count' => $target->perspective_count,
             ],
         ]);
     }
