@@ -126,6 +126,7 @@
                         </p>
                     </div>
                     <div class="actions">
+                        <a class="secondary" href="{{ route('admin.dashboard') }}">管理トップへ</a>
                         @if ($showingTrash)
                             <a class="primary" href="{{ route('admin.articles.index') }}">記事一覧へ戻る</a>
                         @else

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminArticlePageController;
+use App\Http\Controllers\AdminOgiriPageController;
 use App\Http\Controllers\BoardPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ Route::middleware('admin.web.token')->group(function (): void {
     Route::delete('/admin/articles/{article}', [AdminArticlePageController::class, 'destroy'])->name('admin.articles.destroy');
     Route::patch('/admin/articles/{article}/restore', [AdminArticlePageController::class, 'restore'])->name('admin.articles.restore');
     Route::delete('/admin/articles/{article}/force', [AdminArticlePageController::class, 'forceDestroy'])->name('admin.articles.force-destroy');
+    Route::get('/admin/ogiri', [AdminOgiriPageController::class, 'index'])->name('admin.ogiri.index');
+    Route::get('/admin/ogiri/create', [AdminOgiriPageController::class, 'create'])->name('admin.ogiri.create');
+    Route::post('/admin/ogiri', [AdminOgiriPageController::class, 'store'])->name('admin.ogiri.store');
+    Route::delete('/admin/ogiri/{prompt}', [AdminOgiriPageController::class, 'destroy'])->name('admin.ogiri.destroy');
     Route::post('/admin/articles/logout', [AdminArticlePageController::class, 'logout'])->name('admin.articles.logout');
     Route::get('/admin/board', [BoardPageController::class, 'index'])->name('admin.board.index');
     Route::get('/admin/timeline', [BoardPageController::class, 'timeline'])->name('admin.board.timeline');

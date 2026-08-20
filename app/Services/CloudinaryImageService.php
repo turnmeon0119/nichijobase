@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class CloudinaryImageService
@@ -22,6 +23,11 @@ class CloudinaryImageService
             ]);
 
         if ($response->failed()) {
+            Log::warning('Cloudinary image upload failed.', [
+                'status' => $response->status(),
+                'body' => $response->json() ?? $response->body(),
+            ]);
+
             throw new RuntimeException('画像のアップロードに失敗しました。');
         }
 

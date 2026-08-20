@@ -32,8 +32,9 @@ class AdminArticlePageTest extends TestCase
             ->get('/admin')
             ->assertOk()
             ->assertSee('管理トップ')
-            ->assertSee('記事を管理する')
-            ->assertSee('掲示板を管理モードで開く');
+            ->assertSee('記事管理')
+            ->assertSee('掲示板管理')
+            ->assertSee('大喜利管理');
     }
 
     public function test_it_lists_articles_with_ids_for_admin(): void

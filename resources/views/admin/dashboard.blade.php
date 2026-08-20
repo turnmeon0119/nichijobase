@@ -7,75 +7,88 @@
         <style>
             body {
                 margin: 0;
-                background: #f7f7f8;
+                background:
+                    radial-gradient(circle at 12% 10%, rgba(255, 248, 232, 0.9), transparent 28%),
+                    linear-gradient(135deg, #fbfaf7 0%, #f2f2f0 100%);
                 color: #171717;
                 font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif;
             }
             .shell {
-                width: min(1080px, calc(100% - 24px));
+                width: min(1120px, calc(100% - 24px));
                 margin: 0 auto;
-                padding: 24px 0 48px;
-            }
-            .hero, .card {
-                background: #fff;
-                border: 1px solid #e4e4e7;
-                border-radius: 16px;
-                box-shadow: 0 10px 30px rgba(24, 24, 27, 0.06);
+                padding: 32px 0 56px;
             }
             .hero {
-                padding: 28px;
-                margin-bottom: 20px;
+                background: #fff;
+                border: 1px solid #e4e4e7;
+                border-radius: 28px;
+                box-shadow: 0 18px 50px rgba(24, 24, 27, 0.08);
+            }
+            .hero {
+                padding: clamp(24px, 4vw, 44px);
             }
             h1 {
-                margin: 0 0 8px;
-                font-size: 2.2rem;
+                margin: 0 0 12px;
+                font-size: clamp(2.4rem, 6vw, 4.6rem);
+                letter-spacing: -0.07em;
+                line-height: 1;
             }
             p {
                 margin: 0;
                 color: #52525b;
                 line-height: 1.8;
             }
-            .grid {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 18px;
-                margin-top: 18px;
-            }
-            .card {
-                padding: 22px;
-            }
-            .card h2 {
-                margin: 0 0 10px;
-                font-size: 1.4rem;
-            }
             .actions {
-                margin-top: 18px;
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
+                margin-top: 30px;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 14px;
             }
             a, button {
                 font: inherit;
             }
-            .link, .logout {
-                display: inline-block;
-                padding: 10px 14px;
-                border-radius: 999px;
+            .link {
+                display: grid;
+                min-height: 142px;
+                align-content: space-between;
+                padding: 22px;
+                border-radius: 22px;
                 text-decoration: none;
-                border: 1px solid #d4d4d8;
+                border: 1px solid #d8d4cc;
                 background: #fff;
                 color: #171717;
+                transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+            }
+            .link:hover {
+                transform: translateY(-3px);
+                border-color: #171717;
+                box-shadow: 0 14px 34px rgba(24, 24, 27, 0.1);
+            }
+            .link strong {
+                display: block;
+                font-size: 1.25rem;
+            }
+            .link span {
+                display: block;
+                margin-top: 12px;
+                color: #71717a;
+                font-size: 0.92rem;
+                line-height: 1.7;
+            }
+            .logout-wrap {
+                margin-top: 22px;
             }
             .logout {
+                display: inline-block;
+                padding: 10px 16px;
+                border-radius: 999px;
+                border: 1px solid #d4d4d8;
+                background: transparent;
+                color: #171717;
                 cursor: pointer;
             }
-            .link {
-                background: #171717;
-                border-color: #171717;
-                color: #fff;
-            }
             @media (max-width: 720px) {
-                .grid {
+                .actions {
                     grid-template-columns: 1fr;
                 }
             }
@@ -85,26 +98,27 @@
         <main class="shell">
             <section class="hero">
                 <h1>管理トップ</h1>
-                <p>記事管理と掲示板管理の入口です。削除や確認をするときは、ここから使い分けます。</p>
+                <p>公開コンテンツを整理するための管理入口です。必要な操作だけをここから開けます。</p>
                 <div class="actions">
-                    <a class="link" href="{{ route('admin.articles.index') }}">記事を管理する</a>
-                    <a class="link" href="{{ route('admin.board.index') }}">掲示板を管理モードで開く</a>
+                    <a class="link" href="{{ route('admin.articles.index') }}">
+                        <strong>記事管理</strong>
+                        <span>記事の作成・編集・削除、公開状態を確認します。</span>
+                    </a>
+                    <a class="link" href="{{ route('admin.board.index') }}">
+                        <strong>掲示板管理</strong>
+                        <span>スレッドや返信を確認し、必要に応じて削除します。</span>
+                    </a>
+                    <a class="link" href="{{ route('admin.ogiri.index') }}">
+                        <strong>大喜利管理</strong>
+                        <span>画像つきのお題を作成し、公開側へ反映します。</span>
+                    </a>
+                </div>
+                <div class="logout-wrap">
                     <form method="POST" action="{{ route('admin.articles.logout') }}">
                         @csrf
                         <button class="logout" type="submit">ログアウト</button>
                     </form>
                 </div>
-            </section>
-
-            <section class="grid">
-                <article class="card">
-                    <h2>記事管理</h2>
-                    <p>記事ID、タイトル、slug を見ながら削除できます。記事単位の整理はこちらです。</p>
-                </article>
-                <article class="card">
-                    <h2>掲示板管理</h2>
-                    <p>掲示板一覧を開くと、管理モード中だけスレッドIDと削除ボタンが表示されます。</p>
-                </article>
             </section>
         </main>
     </body>
