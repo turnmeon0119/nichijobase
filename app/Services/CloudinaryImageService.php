@@ -9,11 +9,11 @@ use RuntimeException;
 
 class CloudinaryImageService
 {
-    public function upload(UploadedFile $image): array
+    public function upload(UploadedFile $image, string $folder = 'nichijobase/board'): array
     {
         $cloudName = (string) config('services.cloudinary.cloud_name');
         $timestamp = time();
-        $parameters = ['folder' => 'nichijobase/board', 'timestamp' => $timestamp];
+        $parameters = ['folder' => $folder, 'timestamp' => $timestamp];
 
         $response = Http::attach('file', $image->get(), $image->getClientOriginalName())
             ->post("https://api.cloudinary.com/v1_1/{$cloudName}/image/upload", [

@@ -17,10 +17,15 @@ class Article extends Model
         'title',
         'slug',
         'excerpt',
+        'image_url',
+        'image_public_id',
         'body',
         'type',
         'published_at',
         'is_public',
+        'like_count',
+        'empathy_count',
+        'useful_count',
     ];
 
     protected function casts(): array
@@ -42,6 +47,11 @@ class Article extends Model
     public function pageViews(): HasMany
     {
         return $this->hasMany(PageView::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ArticleComment::class);
     }
 
     public function boardThread(): HasOne

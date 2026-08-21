@@ -116,6 +116,19 @@
                 font-size: 0.85rem;
                 font-weight: normal;
             }
+            .preview {
+                width: min(100%, 520px);
+                margin-top: 10px;
+                border: 1px solid #e4e4e7;
+                border-radius: 16px;
+                overflow: hidden;
+                background: #f4f4f5;
+            }
+            .preview img {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
         </style>
     </head>
     <body>
@@ -146,6 +159,7 @@
                 <form
                     method="POST"
                     action="{{ $article ? route('admin.articles.update', $article) : route('admin.articles.store') }}"
+                    enctype="multipart/form-data"
                 >
                     @csrf
                     @if ($article)
@@ -166,6 +180,17 @@
                     <label>
                         概要
                         <textarea name="excerpt">{{ old('excerpt', $article?->excerpt) }}</textarea>
+                    </label>
+
+                    <label>
+                        アイキャッチ画像
+                        <input type="file" name="image" accept="image/jpeg,image/png,image/webp">
+                        <span class="hint">JPEG / PNG / WebP、5MBまで。設定すると記事一覧と詳細に表示されます。</span>
+                        @if ($article?->image_url)
+                            <div class="preview">
+                                <img src="{{ $article->image_url }}" alt="">
+                            </div>
+                        @endif
                     </label>
 
                     <label>

@@ -39,6 +39,7 @@ class UpdateArticleRequest extends FormRequest
                 $uniqueSlug,
             ],
             'excerpt' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
             'body' => ['sometimes', 'required', 'string'],
             'type' => ['nullable', Rule::in(['episode', 'editorial'])],
             'published_at' => ['nullable', 'date'],

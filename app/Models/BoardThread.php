@@ -22,6 +22,10 @@ class BoardThread extends Model
         'perspective_count',
     ];
 
+    protected $casts = [
+        'is_hidden' => 'boolean',
+    ];
+
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);

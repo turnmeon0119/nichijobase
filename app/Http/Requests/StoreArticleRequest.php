@@ -21,6 +21,7 @@ class StoreArticleRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'alpha_dash', 'unique:articles,slug'],
             'excerpt' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
             'body' => ['required', 'string'],
             'type' => ['nullable', Rule::in(['episode', 'editorial'])],
             'published_at' => ['nullable', 'date'],

@@ -62,11 +62,18 @@ class BoardPostController extends Controller
 
         $target = $thread->posts()->whereKey($post)->where('is_hidden', false)->firstOrFail();
         $target->increment('reports_count');
+        $target->refresh();
+
+        if ($target->reports_count >= 3) {
+            $target->is_hidden = true;
+            $target->save();
+        }
 
         return response()->json([
             'data' => [
                 'id' => $target->id,
                 'reports_count' => $target->reports_count,
+                'is_hidden' => $target->is_hidden,
             ],
         ]);
     }

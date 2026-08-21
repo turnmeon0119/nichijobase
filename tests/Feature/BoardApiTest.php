@@ -140,13 +140,21 @@ class BoardApiTest extends TestCase
             ->assertUnprocessable();
     }
 
-    public function test_it_requires_article_when_creating_thread(): void
+    public function test_it_creates_independent_thread_without_article(): void
     {
-        $this->postJson('/api/threads', [
+        $response = $this->postJson('/api/threads', [
             'title' => '自由投稿',
             'body' => '本文',
-        ])->assertUnprocessable()
-            ->assertJsonValidationErrors('article_id');
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.article_id', null)
+            ->assertJsonPath('data.title', '自由投稿');
+
+        $this->assertDatabaseHas('board_threads', [
+            'article_id' => null,
+            'title' => '自由投稿',
+        ]);
     }
 
     public function test_it_posts_reply_without_auth(): void
@@ -309,6 +317,35 @@ class BoardApiTest extends TestCase
         ]);
     }
 
+    public function test_it_hides_thread_after_three_reports(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => '自動非表示対象',
+            'body' => '本文',
+        ]);
+
+        $this->postJson('/api/threads/'.$thread->id.'/report')
+            ->assertOk()
+            ->assertJsonPath('data.reports_count', 1)
+            ->assertJsonPath('data.is_hidden', false);
+        $this->postJson('/api/threads/'.$thread->id.'/report')
+            ->assertOk()
+            ->assertJsonPath('data.reports_count', 2)
+            ->assertJsonPath('data.is_hidden', false);
+        $this->postJson('/api/threads/'.$thread->id.'/report')
+            ->assertOk()
+            ->assertJsonPath('data.reports_count', 3)
+            ->assertJsonPath('data.is_hidden', true);
+
+        $this->assertDatabaseHas('board_threads', [
+            'id' => $thread->id,
+            'reports_count' => 3,
+            'is_hidden' => true,
+        ]);
+        $this->getJson('/api/threads/'.$thread->id)->assertNotFound();
+        $this->getJson('/api/threads')->assertOk()->assertJsonCount(0, 'data');
+    }
+
     public function test_it_reacts_to_thread_without_auth(): void
     {
         $thread = BoardThread::query()->create([
@@ -395,6 +432,40 @@ class BoardApiTest extends TestCase
             'id' => $post->id,
             'reports_count' => 1,
         ]);
+    }
+
+    public function test_it_hides_post_after_three_reports(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => 'スレ',
+            'body' => '本文',
+        ]);
+
+        $post = $thread->posts()->create([
+            'body' => '自動非表示対象返信',
+        ]);
+
+        $this->postJson('/api/threads/'.$thread->id.'/posts/'.$post->id.'/report')
+            ->assertOk()
+            ->assertJsonPath('data.reports_count', 1)
+            ->assertJsonPath('data.is_hidden', false);
+        $this->postJson('/api/threads/'.$thread->id.'/posts/'.$post->id.'/report')
+            ->assertOk()
+            ->assertJsonPath('data.reports_count', 2)
+            ->assertJsonPath('data.is_hidden', false);
+        $this->postJson('/api/threads/'.$thread->id.'/posts/'.$post->id.'/report')
+            ->assertOk()
+            ->assertJsonPath('data.reports_count', 3)
+            ->assertJsonPath('data.is_hidden', true);
+
+        $this->assertDatabaseHas('board_posts', [
+            'id' => $post->id,
+            'reports_count' => 3,
+            'is_hidden' => true,
+        ]);
+        $this->getJson('/api/threads/'.$thread->id)
+            ->assertOk()
+            ->assertJsonCount(0, 'data.posts');
     }
 
     public function test_admin_can_hide_and_unhide_thread(): void

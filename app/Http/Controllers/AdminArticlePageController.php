@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Models\Article;
+use App\Services\CloudinaryImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AdminArticlePageController extends Controller
 {
+    public function __construct(private readonly CloudinaryImageService $images) {}
+
     public function dashboard(): View
     {
         return view('admin.dashboard');
@@ -74,8 +77,18 @@ class AdminArticlePageController extends Controller
 
     public function store(StoreArticleRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
+        unset($validated['image']);
+
+        if ($request->hasFile('image')) {
+            $validated = [
+                ...$validated,
+                ...$this->images->upload($request->file('image'), 'nichijobase/articles'),
+            ];
+        }
+
         $article = Article::query()->create([
-            ...$request->validated(),
+            ...$validated,
             'is_public' => $request->boolean('is_public'),
         ]);
 
@@ -93,8 +106,19 @@ class AdminArticlePageController extends Controller
 
     public function update(UpdateArticleRequest $request, Article $article): RedirectResponse
     {
+        $validated = $request->validated();
+        unset($validated['image']);
+
+        if ($request->hasFile('image')) {
+            $this->images->delete($article->image_public_id);
+            $validated = [
+                ...$validated,
+                ...$this->images->upload($request->file('image'), 'nichijobase/articles'),
+            ];
+        }
+
         $article->update([
-            ...$request->validated(),
+            ...$validated,
             'is_public' => $request->boolean('is_public'),
         ]);
 

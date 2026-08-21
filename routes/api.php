@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\ArticleController;
+use App\Http\Controllers\Api\ArticleCommentController;
+use App\Http\Controllers\Api\ArticleReactionController;
 use App\Http\Controllers\Api\BoardPostController;
 use App\Http\Controllers\Api\BoardThreadController;
 use App\Http\Controllers\Api\NewsItemController;
@@ -9,6 +11,9 @@ use App\Http\Controllers\Api\OgiriPromptController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/{slug}/comments', [ArticleCommentController::class, 'index']);
+Route::post('/articles/{slug}/comments', [ArticleCommentController::class, 'store'])->middleware('throttle:30,1');
+Route::post('/articles/{slug}/reactions', [ArticleReactionController::class, 'store'])->middleware('throttle:30,1');
 Route::get('/articles/{slug}', [ArticleController::class, 'show']);
 Route::get('/news', [NewsItemController::class, 'index']);
 Route::get('/news/{slug}', [NewsItemController::class, 'show']);

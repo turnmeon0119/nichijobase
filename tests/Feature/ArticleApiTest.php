@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Article;
+use App\Services\CloudinaryImageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class ArticleApiTest extends TestCase
@@ -42,6 +44,39 @@ class ArticleApiTest extends TestCase
         $this->assertDatabaseHas('articles', [
             'slug' => 'new-article-title',
             'title' => '新規記事タイトル',
+        ]);
+    }
+
+    public function test_it_creates_article_with_image(): void
+    {
+        $this->mock(CloudinaryImageService::class, function ($mock): void {
+            $mock->shouldReceive('upload')
+                ->once()
+                ->andReturn([
+                    'image_url' => 'https://res.cloudinary.com/demo/image/upload/article.jpg',
+                    'image_public_id' => 'nichijobase/articles/article',
+                ]);
+        });
+
+        $response = $this->withHeaders($this->adminHeaders())
+            ->post('/api/articles', [
+                'title' => '画像つき記事',
+                'slug' => 'article-with-image',
+                'body' => '本文テキスト',
+                'type' => 'episode',
+                'published_at' => '2026-04-16 12:00:00',
+                'is_public' => true,
+                'image' => UploadedFile::fake()->create('article.jpg', 10, 'image/jpeg'),
+            ]);
+
+        $response
+            ->assertCreated()
+            ->assertJsonPath('data.image_url', 'https://res.cloudinary.com/demo/image/upload/article.jpg');
+
+        $this->assertDatabaseHas('articles', [
+            'slug' => 'article-with-image',
+            'image_url' => 'https://res.cloudinary.com/demo/image/upload/article.jpg',
+            'image_public_id' => 'nichijobase/articles/article',
         ]);
     }
 
@@ -131,7 +166,7 @@ class ArticleApiTest extends TestCase
             ->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    '*' => ['id', 'title', 'slug', 'excerpt', 'type', 'published_at', 'board_thread_id'],
+                    '*' => ['id', 'title', 'slug', 'excerpt', 'image_url', 'type', 'published_at', 'board_thread_id'],
                 ],
             ]);
     }
@@ -146,7 +181,7 @@ class ArticleApiTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonStructure([
-                'data' => ['id', 'title', 'slug', 'body', 'excerpt', 'type', 'published_at', 'view_count', 'board_thread_id'],
+                'data' => ['id', 'title', 'slug', 'body', 'excerpt', 'image_url', 'type', 'published_at', 'view_count', 'board_thread_id'],
             ]);
 
         $this->assertDatabaseCount('page_views', 1);

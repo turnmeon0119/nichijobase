@@ -19,7 +19,7 @@ class StoreBoardThreadRequest extends FormRequest
     {
         return [
             'article_id' => [
-                'required',
+                'nullable',
                 'integer',
                 'exists:articles,id',
                 Rule::unique('board_threads', 'article_id'),

@@ -60,7 +60,6 @@ class BoardThreadController extends Controller
 
         $query = BoardThread::query()
             ->where('is_hidden', false)
-            ->whereNotNull('article_id')
             ->with('article:id,slug,title')
             ->withCount(['posts as posts_count' => fn ($query) => $query->where('is_hidden', false)])
             ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at');
@@ -163,12 +162,23 @@ class BoardThreadController extends Controller
 
     public function report(BoardThread $thread): JsonResponse
     {
+        if ($thread->is_hidden) {
+            throw new NotFoundHttpException();
+        }
+
         $thread->increment('reports_count');
+        $thread->refresh();
+
+        if ($thread->reports_count >= 3) {
+            $thread->is_hidden = true;
+            $thread->save();
+        }
 
         return response()->json([
             'data' => [
                 'id' => $thread->id,
                 'reports_count' => $thread->reports_count,
+                'is_hidden' => $thread->is_hidden,
             ],
         ]);
     }
