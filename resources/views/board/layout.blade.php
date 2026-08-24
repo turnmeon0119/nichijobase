@@ -160,6 +160,31 @@
                 font-size: 0.85rem;
             }
 
+            .post-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                margin-bottom: 10px;
+            }
+
+            .delete-inline-form {
+                display: block;
+                flex: 0 0 auto;
+            }
+
+            .danger-outline-button {
+                border: 1px solid rgba(140, 29, 24, 0.35);
+                background: #fff;
+                color: #8c1d18;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            .danger-outline-button:hover {
+                background: rgba(140, 29, 24, 0.08);
+            }
+
             .status {
                 margin-bottom: 16px;
                 padding: 12px 14px;

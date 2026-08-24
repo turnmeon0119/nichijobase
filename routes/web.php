@@ -41,6 +41,7 @@ Route::middleware('admin.web.token')->group(function (): void {
     Route::get('/admin/board/{thread}', [BoardPageController::class, 'show'])->name('admin.board.show');
     Route::post('/admin/board', [BoardPageController::class, 'storeThread'])->name('admin.board.store');
     Route::post('/admin/board/{thread}/posts', [BoardPageController::class, 'storePost'])->name('admin.board.posts.store');
+    Route::delete('/admin/board/{thread}/posts/{post}', [BoardPageController::class, 'destroyPost'])->name('admin.board.posts.destroy');
     Route::delete('/admin/board/{thread}', [BoardPageController::class, 'destroy'])->name('admin.board.destroy');
 });
 

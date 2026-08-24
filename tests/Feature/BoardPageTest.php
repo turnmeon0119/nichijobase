@@ -173,6 +173,29 @@ class BoardPageTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_delete_reply_from_board_detail_page(): void
+    {
+        $thread = BoardThread::query()->create([
+            'title' => '返信削除対象',
+            'body' => '本文',
+        ]);
+
+        $post = $thread->posts()->create([
+            'body' => '削除される返信',
+        ]);
+
+        $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
+            ->delete('/admin/board/'.$thread->id.'/posts/'.$post->id);
+
+        $response->assertRedirect(route('admin.board.show', $thread).'#replies');
+        $this->assertDatabaseMissing('board_posts', [
+            'id' => $post->id,
+        ]);
+        $this->assertDatabaseHas('board_threads', [
+            'id' => $thread->id,
+        ]);
+    }
+
     public function test_public_board_page_is_not_exposed_by_laravel(): void
     {
         $this->get('/board')->assertNotFound();

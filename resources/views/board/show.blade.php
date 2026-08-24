@@ -28,7 +28,7 @@
 
             <div style="height: 18px;"></div>
 
-            <h3 class="section-title">返信</h3>
+            <h3 class="section-title" id="replies">返信</h3>
 
             @if ($thread->posts->isEmpty())
                 <p class="empty">まだ返信はありません。</p>
@@ -36,7 +36,21 @@
                 <div class="post-list">
                     @foreach ($thread->posts as $post)
                         <article class="post-card" id="post-{{ $post->id }}">
-                            <p class="meta">#{{ $post->id }} {{ $post->name ?: '名無し' }} / {{ $post->created_at?->diffForHumans() }} ({{ $post->created_at?->format('Y/m/d H:i') }})</p>
+                            <div class="post-card-header">
+                                <p class="meta" style="margin: 0;">#{{ $post->id }} {{ $post->name ?: '名無し' }} / {{ $post->created_at?->diffForHumans() }} ({{ $post->created_at?->format('Y/m/d H:i') }})</p>
+                                @if ($isAdmin)
+                                    <form
+                                        class="delete-inline-form"
+                                        method="POST"
+                                        action="{{ route('admin.board.posts.destroy', [$thread, $post]) }}"
+                                        onsubmit="return confirm('この返信を削除しますか？');"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="danger-outline-button" type="submit">返信を削除</button>
+                                    </form>
+                                @endif
+                            </div>
                             <p class="card-body">{{ $post->body }}</p>
                         </article>
                     @endforeach

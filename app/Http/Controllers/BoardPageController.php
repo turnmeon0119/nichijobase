@@ -206,6 +206,20 @@ class BoardPageController extends Controller
             ->with('status', 'スレッドを削除しました。');
     }
 
+    public function destroyPost(BoardThread $thread, BoardPost $post): RedirectResponse
+    {
+        if ((int) $post->board_thread_id !== (int) $thread->id) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->images->delete($post->image_public_id);
+        $post->delete();
+
+        return redirect()
+            ->to(route('admin.board.show', $thread).'#replies')
+            ->with('status', '返信を削除しました。');
+    }
+
     private function boardStatusFilter(Request $request): string
     {
         $status = (string) $request->query('status', 'visible');
