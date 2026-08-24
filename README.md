@@ -188,8 +188,26 @@ Current production structure:
 
 - Frontend: Vercel
 - API: Render
-- Database: Railway MySQL
+- Database: SQLite on Render persistent disk (`/var/data/database.sqlite`)
 - Images: Cloudinary
+
+```txt
+User
+  ↓
+Vercel (Next.js frontend)
+  ↓ API requests
+Render (Laravel API)
+  ├─ SQLite on persistent disk
+  └─ Cloudinary images
+```
+
+The current Render configuration uses Docker and starts Laravel through
+`scripts/render-start.sh`. It creates the SQLite database file on the mounted
+Render disk, runs migrations, and starts the Laravel server.
+
+Railway MySQL is not used by the latest Render configuration. If traffic,
+concurrent writes, or data volume grows, consider moving the production database
+to a managed PostgreSQL or MySQL service.
 
 Production environment variables are managed in each service dashboard. Do not commit production secrets.
 
@@ -224,4 +242,3 @@ feature/board-ui
 feature/article-comments
 fix/image-upload
 ```
-
