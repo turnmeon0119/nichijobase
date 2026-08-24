@@ -104,6 +104,10 @@
                         <strong>記事管理</strong>
                         <span>記事の作成・編集・削除、公開状態を確認します。</span>
                     </a>
+                    <a class="link" href="{{ route('admin.article-comments.index') }}">
+                        <strong>記事コメント管理</strong>
+                        <span>記事に届いたコメントを確認し、必要に応じて削除します。</span>
+                    </a>
                     <a class="link" href="{{ route('admin.news.index') }}">
                         <strong>News管理</strong>
                         <span>お知らせ・更新情報・イベント告知を作成します。</span>

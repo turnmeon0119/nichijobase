@@ -45,6 +45,7 @@ class AdminArticlePageController extends Controller
     {
         $articles = Article::query()
             ->with('boardThread:id,article_id')
+            ->withCount('comments')
             ->orderByDesc('id')
             ->get(['id', 'title', 'slug', 'type', 'published_at', 'is_public']);
 
@@ -59,6 +60,7 @@ class AdminArticlePageController extends Controller
         $articles = Article::query()
             ->onlyTrashed()
             ->with('boardThread:id,article_id')
+            ->withCount('comments')
             ->orderByDesc('deleted_at')
             ->get(['id', 'title', 'slug', 'type', 'published_at', 'is_public', 'deleted_at']);
 

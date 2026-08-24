@@ -40,6 +40,7 @@ class UpdateArticleRequest extends FormRequest
             ],
             'excerpt' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
+            'image_caption' => ['nullable', 'string', 'max:160'],
             'body' => ['sometimes', 'required', 'string'],
             'type' => ['nullable', Rule::in(['episode', 'editorial'])],
             'published_at' => ['nullable', 'date'],

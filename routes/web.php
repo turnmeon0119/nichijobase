@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminArticlePageController;
+use App\Http\Controllers\AdminArticleCommentPageController;
 use App\Http\Controllers\AdminNewsPageController;
 use App\Http\Controllers\AdminOgiriPageController;
 use App\Http\Controllers\BoardPageController;
@@ -22,6 +23,8 @@ Route::middleware('admin.web.token')->group(function (): void {
     Route::delete('/admin/articles/{article}', [AdminArticlePageController::class, 'destroy'])->name('admin.articles.destroy');
     Route::patch('/admin/articles/{article}/restore', [AdminArticlePageController::class, 'restore'])->name('admin.articles.restore');
     Route::delete('/admin/articles/{article}/force', [AdminArticlePageController::class, 'forceDestroy'])->name('admin.articles.force-destroy');
+    Route::get('/admin/article-comments', [AdminArticleCommentPageController::class, 'index'])->name('admin.article-comments.index');
+    Route::delete('/admin/article-comments/{comment}', [AdminArticleCommentPageController::class, 'destroy'])->name('admin.article-comments.destroy');
     Route::get('/admin/news', [AdminNewsPageController::class, 'index'])->name('admin.news.index');
     Route::get('/admin/news/create', [AdminNewsPageController::class, 'create'])->name('admin.news.create');
     Route::post('/admin/news', [AdminNewsPageController::class, 'store'])->name('admin.news.store');

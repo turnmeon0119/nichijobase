@@ -203,6 +203,12 @@
                     </label>
 
                     <label>
+                        画像キャプション
+                        <input type="text" name="image_caption" value="{{ old('image_caption', $article?->image_caption) }}" maxlength="160">
+                        <span class="hint">記事詳細で画像の下に小さく表示されます。撮影者・場所・補足メモなどに使えます。</span>
+                    </label>
+
+                    <label>
                         本文
                         <textarea class="body" name="body" required>{{ old('body', $article?->body) }}</textarea>
                     </label>

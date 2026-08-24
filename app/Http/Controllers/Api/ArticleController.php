@@ -20,6 +20,7 @@ class ArticleController extends Controller
             'title' => $article->title,
             'slug' => $article->slug,
             'image_url' => $article->image_url,
+            'image_caption' => $article->image_caption,
             'body' => $article->body,
             'excerpt' => $article->excerpt,
             'type' => $article->type,
@@ -102,7 +103,7 @@ class ArticleController extends Controller
             ->published()
             ->orderByDesc('published_at')
             ->get([
-                'id', 'title', 'slug', 'excerpt', 'image_url', 'type', 'published_at',
+                'id', 'title', 'slug', 'excerpt', 'image_url', 'image_caption', 'type', 'published_at',
                 'like_count', 'empathy_count', 'useful_count',
             ]);
 
@@ -113,6 +114,7 @@ class ArticleController extends Controller
                 'slug' => $article->slug,
                 'excerpt' => $article->excerpt,
                 'image_url' => $article->image_url,
+                'image_caption' => $article->image_caption,
                 'type' => $article->type,
                 'published_at' => $article->published_at,
                 'board_thread_id' => $article->boardThread?->id,
@@ -144,6 +146,7 @@ class ArticleController extends Controller
                 'body' => $article->body,
                 'excerpt' => $article->excerpt,
                 'image_url' => $article->image_url,
+                'image_caption' => $article->image_caption,
                 'type' => $article->type,
                 'published_at' => $article->published_at,
                 'view_count' => $article->pageViews()->count(),

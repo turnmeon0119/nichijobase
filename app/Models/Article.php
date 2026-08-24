@@ -19,6 +19,7 @@ class Article extends Model
         'excerpt',
         'image_url',
         'image_public_id',
+        'image_caption',
         'body',
         'type',
         'published_at',

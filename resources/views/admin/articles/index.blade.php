@@ -131,6 +131,7 @@
                             <a class="primary" href="{{ route('admin.articles.index') }}">記事一覧へ戻る</a>
                         @else
                             <a class="primary" href="{{ route('admin.articles.create') }}">新規作成</a>
+                            <a class="secondary" href="{{ route('admin.article-comments.index') }}">コメント管理</a>
                             <a class="secondary" href="{{ route('admin.articles.trash') }}">ゴミ箱</a>
                         @endif
                         <a class="secondary" href="{{ route('admin.board.index') }}">掲示板へ</a>
@@ -153,6 +154,7 @@
                             <th>slug</th>
                             <th>公開状態</th>
                             <th>連携スレ</th>
+                            <th>コメント</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -180,6 +182,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $article->boardThread?->id ? '#'.$article->boardThread->id : 'なし' }}</td>
+                                <td>{{ $article->comments_count ?? 0 }}件</td>
                                 <td>
                                     <div class="actions">
                                         @if ($showingTrash)
@@ -206,7 +209,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6">記事はまだありません。</td>
+                                <td colspan="7">記事はまだありません。</td>
                             </tr>
                         @endforelse
                     </tbody>
