@@ -57,6 +57,8 @@ class BoardThreadController extends Controller
         $sort = $request->validate([
             'sort' => ['sometimes', 'in:latest,popular'],
             'q' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:30'],
         ])['sort'] ?? 'latest';
         $keyword = trim((string) $request->query('q', ''));
 
@@ -78,12 +80,33 @@ class BoardThreadController extends Controller
             $query->orderByRaw('(empathy_count + perspective_count) DESC');
         }
 
-        $threads = $query
-            ->orderByDesc('updated_at')
-            ->get([
-                'id', 'article_id', 'title', 'name', 'body', 'image_url', 'image_caption', 'created_at',
-                'reports_count', 'empathy_count', 'perspective_count',
+        $columns = [
+            'id', 'article_id', 'title', 'name', 'body', 'image_url', 'image_caption', 'created_at',
+            'reports_count', 'empathy_count', 'perspective_count',
+        ];
+
+        $query->orderByDesc('updated_at');
+
+        if ($request->has('page') || $request->has('per_page')) {
+            $perPage = min(max((int) $request->integer('per_page', 10), 1), 30);
+            $paginator = $query->paginate($perPage, $columns);
+
+            return response()->json([
+                'data' => $paginator->getCollection()->map(fn (BoardThread $thread): array => [
+                    ...$this->formatThread($thread),
+                    'posts_count' => $thread->posts_count,
+                    'latest_post_at' => $thread->latest_post_at,
+                ])->all(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
             ]);
+        }
+
+        $threads = $query->get($columns);
 
         return response()->json([
             'data' => $threads->map(fn (BoardThread $thread): array => [

@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateArticleRequest;
 use App\Models\Article;
 use App\Services\CloudinaryImageService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
@@ -94,37 +95,60 @@ class ArticleController extends Controller
         return response()->json([], 204);
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $articles = Article::query()
+        $query = Article::query()
             ->with('boardThread:id,article_id')
             ->withCount('comments')
             ->withMax('comments as latest_comment_at', 'created_at')
             ->published()
-            ->orderByDesc('published_at')
-            ->get([
-                'id', 'title', 'slug', 'excerpt', 'image_url', 'image_caption', 'type', 'published_at',
-                'like_count', 'empathy_count', 'useful_count',
+            ->orderByDesc('published_at');
+
+        $columns = [
+            'id', 'title', 'slug', 'excerpt', 'image_url', 'image_caption', 'type', 'published_at',
+            'like_count', 'empathy_count', 'useful_count',
+        ];
+
+        if ($request->has('page') || $request->has('per_page')) {
+            $perPage = min(max((int) $request->integer('per_page', 12), 1), 30);
+            $paginator = $query->paginate($perPage, $columns);
+
+            return response()->json([
+                'data' => $paginator->getCollection()->map(fn (Article $article): array => $this->formatArticleListItem($article))->all(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
             ]);
+        }
+
+        $articles = $query->get($columns);
 
         return response()->json([
-            'data' => $articles->map(fn (Article $article): array => [
-                'id' => $article->id,
-                'title' => $article->title,
-                'slug' => $article->slug,
-                'excerpt' => $article->excerpt,
-                'image_url' => $article->image_url,
-                'image_caption' => $article->image_caption,
-                'type' => $article->type,
-                'published_at' => $article->published_at,
-                'board_thread_id' => $article->boardThread?->id,
-                'comments_count' => $article->comments_count,
-                'latest_comment_at' => $article->latest_comment_at,
-                'like_count' => $article->like_count,
-                'empathy_count' => $article->empathy_count,
-                'useful_count' => $article->useful_count,
-            ])->all(),
+            'data' => $articles->map(fn (Article $article): array => $this->formatArticleListItem($article))->all(),
         ]);
+    }
+
+    private function formatArticleListItem(Article $article): array
+    {
+        return [
+            'id' => $article->id,
+            'title' => $article->title,
+            'slug' => $article->slug,
+            'excerpt' => $article->excerpt,
+            'image_url' => $article->image_url,
+            'image_caption' => $article->image_caption,
+            'type' => $article->type,
+            'published_at' => $article->published_at,
+            'board_thread_id' => $article->boardThread?->id,
+            'comments_count' => $article->comments_count,
+            'latest_comment_at' => $article->latest_comment_at,
+            'like_count' => $article->like_count,
+            'empathy_count' => $article->empathy_count,
+            'useful_count' => $article->useful_count,
+        ];
     }
 
     public function show(string $slug): JsonResponse
