@@ -15,12 +15,26 @@ Frontend repository:
 - API / 管理画面を触る: `nichijobase`
 - 画面デザインやページを触る: `nichijobase-front`
 
-ローカルで動かすために必要なもの:
+## 事前にインストールするもの
 
-- Docker Desktop
+必須:
+
 - Git
+- Docker Desktop
 - VSCodeなどのエディタ
+
+あると便利:
+
+- GitHub Desktop、SourceTreeなどのGit GUIツール
+- DBeaverなどのDB確認ツール
+- curl（API疎通確認に使います。macOSには基本的に入っています）
+
+外部サービス:
+
+- GitHubアカウント（リポジトリ参加・Pull Request用）
 - Cloudinaryアカウント（画像投稿を確認する場合のみ）
+
+このAPI側はDockerでPHP、Laravel、MySQLを起動するため、ローカルPCにPHPやMySQLを直接インストールする必要はありません。
 
 最初に確認するURL:
 
