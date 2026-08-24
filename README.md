@@ -6,6 +6,34 @@ Frontend repository:
 
 - <https://github.com/turnmeon0119/nichijobase-front>
 
+## 共同開発者向けの最初の確認
+
+このリポジトリはバックエンド側です。記事、ニュース、掲示板、大喜利、画像投稿などのデータ保存とAPIを担当します。
+
+画面の見た目やNext.js側を触る場合は、先にフロントエンドリポジトリを確認してください。
+
+- API / 管理画面を触る: `nichijobase`
+- 画面デザインやページを触る: `nichijobase-front`
+
+ローカルで動かすために必要なもの:
+
+- Docker Desktop
+- Git
+- VSCodeなどのエディタ
+- Cloudinaryアカウント（画像投稿を確認する場合のみ）
+
+最初に確認するURL:
+
+- API疎通確認: <http://localhost:8000/api/test>
+- 管理ログイン: <http://localhost:8000/admin/articles/login>
+
+作業前に守ること:
+
+- `.env` はGitに入れない
+- 本番のトークンやAPIキーをSlack、README、コードに貼らない
+- 変更前に `git pull origin main` で最新化する
+- できれば `main` ではなく作業ブランチを作る
+
 ## Stack
 
 - PHP 8.x
