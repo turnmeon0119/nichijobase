@@ -95,6 +95,38 @@ local-dev-token
 - 変更前に `git pull origin main` で最新化する
 - できれば `main` ではなく作業ブランチを作る
 
+## AIを使って開発する場合の注意
+
+AIに依頼するときは、最初に「どちらのリポジトリを触るのか」を伝えてください。
+
+- API、DB、管理画面、認証、画像アップロードを触る: `nichijobase`
+- 画面デザイン、ページ、フォーム、表示ロジックを触る: `nichijobase-front`
+
+AIに貼ってはいけない情報:
+
+- 本番の `ADMIN_API_TOKEN`
+- Cloudinaryの `CLOUDINARY_API_SECRET`
+- Render、Vercel、GitHubのアクセストークン
+- `.env` の全文
+- パスワード、秘密鍵、決済情報
+
+AIに依頼するときに伝えるとよい情報:
+
+- やりたいこと
+- 期待する画面やAPIの動き
+- 発生しているエラー文
+- 触ってよいリポジトリ名
+- 変更後に確認してほしいコマンド
+
+API側を変更したら、可能な範囲で以下を確認してください。
+
+```bash
+docker compose exec -T app php artisan test
+curl http://localhost:8000/api/test
+```
+
+DBのマイグレーションを変更した場合は、本番データに影響する可能性があります。削除系の変更やカラム変更は、必ず事前に相談してください。
+
 ## Stack
 
 - PHP 8.x
