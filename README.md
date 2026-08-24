@@ -80,6 +80,14 @@ curl http://localhost:8000/api/test
 - API疎通確認: <http://localhost:8000/api/test>
 - 管理ログイン: <http://localhost:8000/admin/articles/login>
 
+ローカル開発用の管理トークン:
+
+```txt
+local-dev-token
+```
+
+この値は `.env.example` の `ADMIN_API_TOKEN` に入っている開発用トークンです。本番環境の管理トークンはREADMEに書かず、必要な人にだけ別の安全な方法で共有してください。
+
 ### 7. 作業前の注意
 
 - `.env` はGitに入れない
