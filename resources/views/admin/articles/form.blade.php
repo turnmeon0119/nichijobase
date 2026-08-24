@@ -148,6 +148,9 @@
                     <div class="actions">
                         <a class="secondary" href="{{ route('admin.dashboard') }}">管理トップへ</a>
                         <a class="secondary" href="{{ route('admin.articles.index') }}">記事一覧へ戻る</a>
+                        @if ($article)
+                            <a class="secondary" href="{{ config('app.front_url', 'http://localhost:3000').'/articles/'.$article->slug }}" target="_blank" rel="noreferrer">公開ページを確認</a>
+                        @endif
                     </div>
                 </div>
 
@@ -183,7 +186,7 @@
                     <label>
                         slug
                         <input type="text" name="slug" value="{{ old('slug', $article?->slug) }}" maxlength="255" required>
-                        <span class="hint">URLに使う英数字・ハイフン・アンダースコア（例: episode-03-notes）</span>
+                        <span class="hint">URLに使う英数字・ハイフン・アンダースコア（例: episode-03-notes）。公開後に変えるとURLも変わります。</span>
                     </label>
 
                     <label>
@@ -194,7 +197,7 @@
                     <label>
                         アイキャッチ画像
                         <input type="file" name="image" accept="image/jpeg,image/png,image/webp">
-                        <span class="hint">JPEG / PNG / WebP、5MBまで。設定すると記事一覧と詳細に表示されます。</span>
+                        <span class="hint">JPEG / PNG / WebP、5MBまで。横長なら1200×800前後、正方形や縦長もカード内に収まるよう表示されます。</span>
                         @if ($article?->image_url)
                             <div class="preview">
                                 <img src="{{ $article->image_url }}" alt="">

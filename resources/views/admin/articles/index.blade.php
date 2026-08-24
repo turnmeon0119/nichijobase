@@ -239,6 +239,7 @@
                                             </form>
                                         @else
                                             <a class="secondary" href="{{ route('admin.articles.edit', $article) }}">編集</a>
+                                            <a class="secondary" href="{{ config('app.front_url', 'http://localhost:3000').'/articles/'.$article->slug }}" target="_blank" rel="noreferrer">表示確認</a>
                                             <form method="POST" action="{{ route('admin.articles.destroy', $article) }}" onsubmit="return confirm('この記事をゴミ箱へ移動しますか？');">
                                                 @csrf
                                                 @method('DELETE')
