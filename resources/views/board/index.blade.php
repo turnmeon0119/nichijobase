@@ -8,6 +8,27 @@
                 Twitter 風に新着を流し見したい場合は <a href="{{ route('admin.board.timeline') }}">タイムライン</a> を使えます。
             </p>
 
+            @if ($isAdmin)
+                @php
+                    $filters = [
+                        'visible' => '表示中',
+                        'hidden' => '非表示',
+                        'all' => 'すべて',
+                    ];
+                @endphp
+                <nav class="badge-row" aria-label="掲示板の表示状態で絞り込み" style="margin-bottom: 18px;">
+                    @foreach ($filters as $value => $label)
+                        <a
+                            class="badge"
+                            href="{{ route('admin.board.index', ['status' => $value]) }}"
+                            style="{{ ($statusFilter ?? 'visible') === $value ? 'background:#171717;color:#fff;border-color:#171717;' : '' }}"
+                        >
+                            {{ $label }}
+                        </a>
+                    @endforeach
+                </nav>
+            @endif
+
             @if ($threads->isEmpty())
                 <p class="empty">まだスレッドがありません。右側のフォームから最初の投稿を作れます。</p>
             @else
@@ -18,10 +39,19 @@
                                 {{ $thread->article?->title ? '記事連携: '.$thread->article->title : '雑談スレッド' }}
                             </div>
                             @if ($isAdmin)
-                                <div class="meta" style="margin-bottom: 10px;">管理用ID: #{{ $thread->id }}</div>
+                                <div class="meta" style="margin-bottom: 10px;">
+                                    管理用ID: #{{ $thread->id }}
+                                    @if ($thread->is_hidden)
+                                        <span class="badge" style="margin-left: 8px;">非表示</span>
+                                    @endif
+                                </div>
                             @endif
                             <h3 class="card-title">
-                                <a href="{{ route('admin.board.show', $thread) }}">{{ $thread->title }}</a>
+                                @if ($thread->is_hidden)
+                                    {{ $thread->title }}
+                                @else
+                                    <a href="{{ route('admin.board.show', $thread) }}">{{ $thread->title }}</a>
+                                @endif
                             </h3>
                             <p class="card-body">{{ $thread->body }}</p>
                             <div class="badge-row">

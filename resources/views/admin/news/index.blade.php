@@ -18,6 +18,9 @@
             .muted { color: #52525b; font-size: 0.95rem; }
             .badge { display: inline-block; padding: 5px 10px; border-radius: 999px; border: 1px solid #d4d4d8; font-size: 0.85rem; background: #fff; }
             .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+            .filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 18px; }
+            .filter-link { display: inline-flex; align-items: center; border: 1px solid #d4d4d8; border-radius: 999px; color: #171717; padding: 8px 12px; text-decoration: none; }
+            .filter-link.active { background: #171717; border-color: #171717; color: #fff; }
             button, a { font: inherit; }
             .danger, .primary, .secondary { border: 0; border-radius: 999px; padding: 10px 14px; cursor: pointer; text-decoration: none; }
             .danger { background: #8c1d18; color: #fff; }
@@ -48,6 +51,25 @@
                 @if (session('status'))
                     <div class="status">{{ session('status') }}</div>
                 @endif
+
+                @php
+                    $filters = [
+                        'all' => 'すべて',
+                        'published' => '公開中',
+                        'draft' => '下書き',
+                        'scheduled' => '予約投稿',
+                    ];
+                @endphp
+                <nav class="filters" aria-label="Newsの公開状態で絞り込み">
+                    @foreach ($filters as $value => $label)
+                        <a
+                            class="filter-link {{ ($statusFilter ?? 'all') === $value ? 'active' : '' }}"
+                            href="{{ $value === 'all' ? route('admin.news.index') : route('admin.news.index', ['status' => $value]) }}"
+                        >
+                            {{ $label }}
+                        </a>
+                    @endforeach
+                </nav>
 
                 <table>
                     <thead>

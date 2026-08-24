@@ -98,15 +98,23 @@ class BoardPageController extends Controller
         ]);
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $threads = BoardThread::query()
-            ->where('is_hidden', false)
+        $statusFilter = $this->boardStatusFilter($request);
+        $query = BoardThread::query()
             ->with('article:id,slug,title')
             ->withCount(['posts as posts_count' => fn ($query) => $query->where('is_hidden', false)])
-            ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at')
+            ->withMax(['posts as latest_post_at' => fn ($query) => $query->where('is_hidden', false)], 'created_at');
+
+        match ($statusFilter) {
+            'visible' => $query->where('is_hidden', false),
+            'hidden' => $query->where('is_hidden', true),
+            default => null,
+        };
+
+        $threads = $query
             ->orderByDesc('updated_at')
-            ->get(['id', 'article_id', 'title', 'name', 'body', 'created_at']);
+            ->get(['id', 'article_id', 'title', 'name', 'body', 'is_hidden', 'created_at']);
 
         $articles = Article::query()
             ->published()
@@ -118,6 +126,7 @@ class BoardPageController extends Controller
             'articles' => $articles,
             'rememberedName' => $this->rememberedName(request()),
             'isAdmin' => $this->isAdmin(request()),
+            'statusFilter' => $statusFilter,
         ]);
     }
 
@@ -195,5 +204,14 @@ class BoardPageController extends Controller
         return redirect()
             ->route('admin.board.index')
             ->with('status', 'スレッドを削除しました。');
+    }
+
+    private function boardStatusFilter(Request $request): string
+    {
+        $status = (string) $request->query('status', 'visible');
+
+        return in_array($status, ['visible', 'hidden', 'all'], true)
+            ? $status
+            : 'visible';
     }
 }

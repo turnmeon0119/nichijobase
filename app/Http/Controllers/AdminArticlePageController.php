@@ -6,6 +6,7 @@ use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Models\Article;
 use App\Services\CloudinaryImageService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -41,17 +42,23 @@ class AdminArticlePageController extends Controller
         return redirect()->route('admin.dashboard');
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $articles = Article::query()
+        $statusFilter = $this->publicationStatusFilter($request);
+        $query = Article::query()
             ->with('boardThread:id,article_id')
-            ->withCount('comments')
+            ->withCount('comments');
+
+        $this->applyPublicationStatusFilter($query, $statusFilter);
+
+        $articles = $query
             ->orderByDesc('id')
             ->get(['id', 'title', 'slug', 'type', 'published_at', 'is_public']);
 
         return view('admin.articles.index', [
             'articles' => $articles,
             'showingTrash' => false,
+            'statusFilter' => $statusFilter,
         ]);
     }
 
@@ -67,6 +74,7 @@ class AdminArticlePageController extends Controller
         return view('admin.articles.index', [
             'articles' => $articles,
             'showingTrash' => true,
+            'statusFilter' => 'trash',
         ]);
     }
 
@@ -195,6 +203,31 @@ class AdminArticlePageController extends Controller
             'draft' => "{$resource}を下書き保存しました。",
             'publish' => "{$resource}を公開保存しました。",
             default => $default,
+        };
+    }
+
+    private function publicationStatusFilter(Request $request): string
+    {
+        $status = (string) $request->query('status', 'all');
+
+        return in_array($status, ['all', 'published', 'draft', 'scheduled'], true)
+            ? $status
+            : 'all';
+    }
+
+    private function applyPublicationStatusFilter(Builder $query, string $status): void
+    {
+        match ($status) {
+            'published' => $query
+                ->where('is_public', true)
+                ->whereNotNull('published_at')
+                ->where('published_at', '<=', now()),
+            'draft' => $query->where('is_public', false),
+            'scheduled' => $query
+                ->where('is_public', true)
+                ->whereNotNull('published_at')
+                ->where('published_at', '>', now()),
+            default => null,
         };
     }
 }

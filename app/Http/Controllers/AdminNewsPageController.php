@@ -5,21 +5,28 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreNewsItemRequest;
 use App\Http\Requests\UpdateNewsItemRequest;
 use App\Models\NewsItem;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AdminNewsPageController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $items = NewsItem::query()
+        $statusFilter = $this->publicationStatusFilter($request);
+        $query = NewsItem::query();
+
+        $this->applyPublicationStatusFilter($query, $statusFilter);
+
+        $items = $query
             ->orderByDesc('published_at')
             ->orderByDesc('id')
             ->get();
 
         return view('admin.news.index', [
             'items' => $items,
+            'statusFilter' => $statusFilter,
         ]);
     }
 
@@ -106,6 +113,31 @@ class AdminNewsPageController extends Controller
             'draft' => "{$resource}を下書き保存しました。",
             'publish' => "{$resource}を公開保存しました。",
             default => $default,
+        };
+    }
+
+    private function publicationStatusFilter(Request $request): string
+    {
+        $status = (string) $request->query('status', 'all');
+
+        return in_array($status, ['all', 'published', 'draft', 'scheduled'], true)
+            ? $status
+            : 'all';
+    }
+
+    private function applyPublicationStatusFilter(Builder $query, string $status): void
+    {
+        match ($status) {
+            'published' => $query
+                ->where('is_public', true)
+                ->whereNotNull('published_at')
+                ->where('published_at', '<=', now()),
+            'draft' => $query->where('is_public', false),
+            'scheduled' => $query
+                ->where('is_public', true)
+                ->whereNotNull('published_at')
+                ->where('published_at', '>', now()),
+            default => null,
         };
     }
 }

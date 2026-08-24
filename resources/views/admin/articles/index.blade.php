@@ -70,6 +70,26 @@
                 gap: 10px;
                 flex-wrap: wrap;
             }
+            .filters {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin: 0 0 18px;
+            }
+            .filter-link {
+                display: inline-flex;
+                align-items: center;
+                border: 1px solid #d4d4d8;
+                border-radius: 999px;
+                color: #171717;
+                padding: 8px 12px;
+                text-decoration: none;
+            }
+            .filter-link.active {
+                background: #171717;
+                border-color: #171717;
+                color: #fff;
+            }
             button, a {
                 font: inherit;
             }
@@ -144,6 +164,27 @@
 
                 @if (session('status'))
                     <div class="status">{{ session('status') }}</div>
+                @endif
+
+                @if (! $showingTrash)
+                    @php
+                        $filters = [
+                            'all' => 'すべて',
+                            'published' => '公開中',
+                            'draft' => '下書き',
+                            'scheduled' => '予約投稿',
+                        ];
+                    @endphp
+                    <nav class="filters" aria-label="記事の公開状態で絞り込み">
+                        @foreach ($filters as $value => $label)
+                            <a
+                                class="filter-link {{ ($statusFilter ?? 'all') === $value ? 'active' : '' }}"
+                                href="{{ $value === 'all' ? route('admin.articles.index') : route('admin.articles.index', ['status' => $value]) }}"
+                            >
+                                {{ $label }}
+                            </a>
+                        @endforeach
+                    </nav>
                 @endif
 
                 <table>
