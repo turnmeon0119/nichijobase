@@ -34,6 +34,36 @@ Frontend repository:
 - 変更前に `git pull origin main` で最新化する
 - できれば `main` ではなく作業ブランチを作る
 
+## クローンから起動まで
+
+初めて参加する場合は、フロントエンドとバックエンドを同じ `podcast-site` フォルダの中に並べて置くとわかりやすいです。
+
+```bash
+mkdir -p ~/development/podcast-site
+cd ~/development/podcast-site
+
+git clone https://github.com/turnmeon0119/nichijobase.git api
+git clone https://github.com/turnmeon0119/nichijobase-front.git front
+```
+
+APIを起動します。
+
+```bash
+cd ~/development/podcast-site/api
+cp .env.example .env
+docker compose up -d --build
+docker compose exec -T app php artisan key:generate
+docker compose exec -T app php artisan migrate --seed
+```
+
+起動確認:
+
+```bash
+curl http://localhost:8000/api/test
+```
+
+`{"message":"OK"}` が返ればAPI側は起動できています。
+
 ## Stack
 
 - PHP 8.x
