@@ -171,6 +171,48 @@ class ArticleApiTest extends TestCase
             ]);
     }
 
+    public function test_it_filters_published_articles_by_keyword(): void
+    {
+        Article::query()->create([
+            'title' => 'Docker環境のメモ',
+            'slug' => 'docker-note',
+            'excerpt' => 'ローカル開発の補足',
+            'body' => 'Laravel API と Next.js をつなぐ話です。',
+            'type' => 'episode',
+            'published_at' => now()->subMinutes(10),
+            'is_public' => true,
+        ]);
+
+        Article::query()->create([
+            'title' => '雑談の記録',
+            'slug' => 'random-note',
+            'excerpt' => '別の話題',
+            'body' => '検索対象ではない本文です。',
+            'type' => 'editorial',
+            'published_at' => now()->subMinutes(5),
+            'is_public' => true,
+        ]);
+
+        Article::query()->create([
+            'title' => '非公開のDockerメモ',
+            'slug' => 'private-docker-note',
+            'excerpt' => 'Docker',
+            'body' => 'Docker',
+            'type' => 'episode',
+            'published_at' => now()->subMinutes(1),
+            'is_public' => false,
+        ]);
+
+        $response = $this->getJson('/api/articles?q=Docker');
+
+        $response
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.slug', 'docker-note')
+            ->assertJsonMissing(['slug' => 'random-note'])
+            ->assertJsonMissing(['slug' => 'private-docker-note']);
+    }
+
     public function test_it_returns_article_detail_and_records_page_view(): void
     {
         $this->seed();

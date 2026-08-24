@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NewsItem extends Model
 {
@@ -29,5 +30,12 @@ class NewsItem extends Model
             ->where('is_public', true)
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
+    }
+
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(NewsItemBlock::class)
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 }

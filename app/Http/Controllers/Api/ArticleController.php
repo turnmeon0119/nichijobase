@@ -7,6 +7,7 @@ use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Models\Article;
 use App\Services\CloudinaryImageService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -27,13 +28,23 @@ class ArticleController extends Controller
             'type' => $article->type,
             'published_at' => $article->published_at,
             'is_public' => $article->is_public,
+            'blocks' => $article->relationLoaded('blocks')
+                ? $article->blocks->map(fn ($block): array => [
+                    'id' => $block->id,
+                    'type' => $block->type,
+                    'body' => $block->body,
+                    'image_url' => $block->image_url,
+                    'image_caption' => $block->image_caption,
+                    'sort_order' => $block->sort_order,
+                ])->all()
+                : [],
         ];
     }
 
     public function store(StoreArticleRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        unset($validated['image']);
+        unset($validated['image'], $validated['blocks']);
 
         if ($request->hasFile('image')) {
             $validated = [
@@ -57,7 +68,7 @@ class ArticleController extends Controller
         $article = Article::query()->where('slug', $slug)->firstOrFail();
 
         $validated = $request->validated();
-        unset($validated['image']);
+        unset($validated['image'], $validated['blocks']);
 
         if ($request->hasFile('image')) {
             $this->images->delete($article->image_public_id);
@@ -101,8 +112,20 @@ class ArticleController extends Controller
             ->with('boardThread:id,article_id')
             ->withCount('comments')
             ->withMax('comments as latest_comment_at', 'created_at')
-            ->published()
-            ->orderByDesc('published_at');
+            ->published();
+
+        $keyword = trim((string) $request->query('q', ''));
+
+        if ($keyword !== '') {
+            $query->where(function (Builder $builder) use ($keyword): void {
+                $builder
+                    ->where('title', 'like', "%{$keyword}%")
+                    ->orWhere('excerpt', 'like', "%{$keyword}%")
+                    ->orWhere('body', 'like', "%{$keyword}%");
+            });
+        }
+
+        $query->orderByDesc('published_at');
 
         $columns = [
             'id', 'title', 'slug', 'excerpt', 'image_url', 'image_caption', 'type', 'published_at',
@@ -154,6 +177,7 @@ class ArticleController extends Controller
     public function show(string $slug): JsonResponse
     {
         $article = Article::query()
+            ->with('blocks')
             ->withCount('comments')
             ->withMax('comments as latest_comment_at', 'created_at')
             ->published()
@@ -180,6 +204,7 @@ class ArticleController extends Controller
                 'like_count' => $article->like_count,
                 'empathy_count' => $article->empathy_count,
                 'useful_count' => $article->useful_count,
+                'blocks' => $this->formatArticle($article)['blocks'],
             ],
         ]);
     }

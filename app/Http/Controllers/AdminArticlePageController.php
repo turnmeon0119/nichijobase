@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Models\Article;
+use App\Models\ArticleBlock;
 use App\Services\CloudinaryImageService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\View\View;
 
 class AdminArticlePageController extends Controller
@@ -88,9 +90,12 @@ class AdminArticlePageController extends Controller
     public function store(StoreArticleRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $blocks = $validated['blocks'] ?? [];
         $saveMode = (string) $request->input('save_mode', 'save');
         $isPublic = $this->resolveIsPublic($request, $validated, $saveMode);
-        unset($validated['image'], $validated['save_mode']);
+        unset($validated['image'], $validated['save_mode'], $validated['blocks']);
+
+        $validated['body'] = $this->bodyFromBlocks($blocks, $validated['body'] ?? null);
 
         if ($request->hasFile('image')) {
             $validated = [
@@ -104,6 +109,8 @@ class AdminArticlePageController extends Controller
             'is_public' => $isPublic,
         ]);
 
+        $this->syncBlocks($article, $blocks);
+
         return redirect()
             ->route('admin.articles.edit', $article)
             ->with('status', $this->statusMessage('記事', $saveMode, '記事を作成しました。'));
@@ -112,16 +119,19 @@ class AdminArticlePageController extends Controller
     public function edit(Article $article): View
     {
         return view('admin.articles.form', [
-            'article' => $article,
+            'article' => $article->load('blocks'),
         ]);
     }
 
     public function update(UpdateArticleRequest $request, Article $article): RedirectResponse
     {
         $validated = $request->validated();
+        $blocks = $validated['blocks'] ?? [];
         $saveMode = (string) $request->input('save_mode', 'save');
         $isPublic = $this->resolveIsPublic($request, $validated, $saveMode);
-        unset($validated['image'], $validated['save_mode']);
+        unset($validated['image'], $validated['save_mode'], $validated['blocks']);
+
+        $validated['body'] = $this->bodyFromBlocks($blocks, $validated['body'] ?? $article->body);
 
         if ($request->hasFile('image')) {
             $this->images->delete($article->image_public_id);
@@ -135,6 +145,8 @@ class AdminArticlePageController extends Controller
             ...$validated,
             'is_public' => $isPublic,
         ]);
+
+        $this->syncBlocks($article, $blocks);
 
         return redirect()
             ->route('admin.articles.edit', $article)
@@ -229,5 +241,121 @@ class AdminArticlePageController extends Controller
                 ->where('published_at', '>', now()),
             default => null,
         };
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $blocks
+     */
+    private function bodyFromBlocks(array $blocks, ?string $fallback): string
+    {
+        $body = collect($blocks)
+            ->filter(fn (array $block): bool => ($block['type'] ?? null) === 'text')
+            ->map(fn (array $block): string => trim((string) ($block['body'] ?? '')))
+            ->filter()
+            ->implode("\n\n");
+
+        return $body !== '' ? $body : trim((string) $fallback);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $blocks
+     */
+    private function syncBlocks(Article $article, array $blocks): void
+    {
+        $existing = $article->blocks()->get()->keyBy('id');
+        $keptIds = [];
+        $sortOrder = 0;
+
+        foreach (array_values($blocks) as $block) {
+            $type = (string) ($block['type'] ?? '');
+            $id = isset($block['id']) ? (int) $block['id'] : null;
+            $target = $id ? $existing->get($id) : null;
+
+            if ($target && $target->article_id !== $article->id) {
+                continue;
+            }
+
+            if ($type === 'text') {
+                $body = trim((string) ($block['body'] ?? ''));
+
+                if ($body === '') {
+                    if ($target instanceof ArticleBlock) {
+                        $this->deleteBlockImage($target);
+                        $target->delete();
+                    }
+
+                    continue;
+                }
+
+                if (! $target instanceof ArticleBlock) {
+                    $target = new ArticleBlock(['article_id' => $article->id]);
+                }
+
+                $this->deleteBlockImage($target);
+                $target->fill([
+                    'type' => 'text',
+                    'body' => $body,
+                    'image_url' => null,
+                    'image_public_id' => null,
+                    'image_caption' => null,
+                    'sort_order' => $sortOrder++,
+                ]);
+                $target->save();
+                $keptIds[] = $target->id;
+
+                continue;
+            }
+
+            if ($type === 'image') {
+                $image = $block['image'] ?? null;
+
+                if (! $target instanceof ArticleBlock && ! $image instanceof UploadedFile) {
+                    continue;
+                }
+
+                if (! $target instanceof ArticleBlock) {
+                    $target = new ArticleBlock(['article_id' => $article->id]);
+                }
+
+                $payload = [
+                    'type' => 'image',
+                    'body' => null,
+                    'image_caption' => trim((string) ($block['image_caption'] ?? '')) ?: null,
+                    'sort_order' => $sortOrder++,
+                ];
+
+                if ($image instanceof UploadedFile) {
+                    $this->deleteBlockImage($target);
+                    $payload = [
+                        ...$payload,
+                        ...$this->images->upload($image, 'nichijobase/articles/body'),
+                    ];
+                }
+
+                $target->fill($payload);
+                $target->save();
+                $keptIds[] = $target->id;
+            }
+        }
+
+        $deleteQuery = $article->blocks();
+
+        if ($keptIds !== []) {
+            $deleteQuery->whereNotIn('id', $keptIds);
+        }
+
+        $deleteQuery
+            ->get()
+            ->each(function (ArticleBlock $block): void {
+                $this->deleteBlockImage($block);
+                $block->delete();
+            });
+    }
+
+    private function deleteBlockImage(ArticleBlock $block): void
+    {
+        if ($block->image_public_id) {
+            $this->images->delete($block->image_public_id);
+        }
     }
 }

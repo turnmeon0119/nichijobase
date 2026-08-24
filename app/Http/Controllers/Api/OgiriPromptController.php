@@ -7,16 +7,33 @@ use App\Http\Requests\StoreOgiriPromptRequest;
 use App\Models\OgiriPrompt;
 use App\Services\CloudinaryImageService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class OgiriPromptController extends Controller
 {
     public function __construct(private readonly CloudinaryImageService $images) {}
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $prompts = OgiriPrompt::query()
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $keyword = trim((string) ($validated['q'] ?? ''));
+
+        $query = OgiriPrompt::query()
             ->published()
-            ->withCount(['answers' => fn ($query) => $query->where('is_hidden', false)])
+            ->withCount(['answers' => fn ($query) => $query->where('is_hidden', false)]);
+
+        if ($keyword !== '') {
+            $query->where(function ($query) use ($keyword): void {
+                $query
+                    ->where('title', 'like', '%'.$keyword.'%')
+                    ->orWhere('body', 'like', '%'.$keyword.'%');
+            });
+        }
+
+        $prompts = $query
             ->latest('published_at')
             ->latest('id')
             ->get()

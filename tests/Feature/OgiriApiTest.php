@@ -42,6 +42,34 @@ class OgiriApiTest extends TestCase
             ->assertJsonPath('data.0.title', '公開お題');
     }
 
+    public function test_it_filters_prompts_by_keyword(): void
+    {
+        OgiriPrompt::query()->create([
+            'title' => '秘密基地のお題',
+            'body' => '木の扉から何が見える？',
+            'is_public' => true,
+            'published_at' => now()->subMinute(),
+        ]);
+
+        OgiriPrompt::query()->create([
+            'title' => '夕飯のお題',
+            'body' => '今日のごはん',
+            'is_public' => true,
+            'published_at' => now()->subMinute(),
+        ]);
+
+        $this->getJson('/api/ogiri/prompts?q=秘密基地')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.title', '秘密基地のお題');
+    }
+
+    public function test_it_rejects_too_long_prompt_search_keyword(): void
+    {
+        $this->getJson('/api/ogiri/prompts?q='.str_repeat('a', 101))
+            ->assertUnprocessable();
+    }
+
     public function test_admin_can_create_prompt(): void
     {
         $this->withHeaders($this->adminHeaders())

@@ -55,6 +55,13 @@ class Article extends Model
         return $this->hasMany(ArticleComment::class);
     }
 
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(ArticleBlock::class)
+            ->orderBy('sort_order')
+            ->orderBy('id');
+    }
+
     public function boardThread(): HasOne
     {
         return $this->hasOne(BoardThread::class);

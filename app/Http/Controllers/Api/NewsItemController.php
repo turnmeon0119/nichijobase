@@ -11,8 +11,21 @@ class NewsItemController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $keyword = trim((string) $request->query('q', ''));
+
         $query = NewsItem::query()
             ->published()
+            ->when($keyword !== '', function ($query) use ($keyword): void {
+                $query->where(function ($query) use ($keyword): void {
+                    $query
+                        ->where('title', 'like', "%{$keyword}%")
+                        ->orWhere('body', 'like', "%{$keyword}%");
+                });
+            })
             ->orderByDesc('published_at')
             ->orderByDesc('id');
 
@@ -42,6 +55,7 @@ class NewsItemController extends Controller
     {
         $item = NewsItem::query()
             ->published()
+            ->with('blocks')
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -58,6 +72,16 @@ class NewsItemController extends Controller
             'slug' => $item->slug,
             'body' => $item->body,
             'published_at' => $item->published_at,
+            'blocks' => $item->relationLoaded('blocks')
+                ? $item->blocks->map(fn ($block): array => [
+                    'id' => $block->id,
+                    'type' => $block->type,
+                    'body' => $block->body,
+                    'image_url' => $block->image_url,
+                    'image_caption' => $block->image_caption,
+                    'sort_order' => $block->sort_order,
+                ])->all()
+                : null,
         ];
     }
 }
