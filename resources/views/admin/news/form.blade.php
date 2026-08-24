@@ -25,6 +25,7 @@
             .errors { background: rgba(140, 29, 24, 0.1); color: #8c1d18; }
             .errors ul { margin: 0; padding-left: 20px; }
             .hint { display: block; margin-top: 6px; color: #52525b; font-size: 0.85rem; font-weight: normal; }
+            .save-note { margin: 6px 0 18px; padding: 14px 16px; border: 1px solid #e4e4e7; border-radius: 14px; background: #fafafa; color: #52525b; line-height: 1.7; }
         </style>
     </head>
     <body>
@@ -81,13 +82,14 @@
                     </label>
 
                     <input type="hidden" name="is_public" value="0">
-                    <label class="checkbox">
-                        <input type="checkbox" name="is_public" value="1" @checked((bool) old('is_public', $item?->is_public ?? false))>
-                        公開対象にする
-                    </label>
+                    <div class="save-note">
+                        下書き保存すると公開ページには表示されません。公開して保存すると公開対象になります。
+                        公開日時が空の場合は、今すぐ公開として保存します。
+                    </div>
 
                     <div class="actions">
-                        <button class="primary" type="submit">{{ $item ? '更新する' : '作成する' }}</button>
+                        <button class="secondary" type="submit" name="save_mode" value="draft">下書き保存</button>
+                        <button class="primary" type="submit" name="save_mode" value="publish">公開して保存</button>
                         <a class="secondary" href="{{ route('admin.news.index') }}">キャンセル</a>
                     </div>
                 </form>

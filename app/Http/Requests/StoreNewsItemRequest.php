@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreNewsItemRequest extends FormRequest
 {
@@ -22,6 +23,7 @@ class StoreNewsItemRequest extends FormRequest
             'body' => ['required', 'string'],
             'is_public' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
+            'save_mode' => ['nullable', Rule::in(['draft', 'publish', 'save'])],
         ];
     }
 }

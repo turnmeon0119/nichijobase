@@ -26,6 +26,7 @@ class StoreArticleRequest extends FormRequest
             'type' => ['nullable', Rule::in(['episode', 'editorial'])],
             'published_at' => ['nullable', 'date'],
             'is_public' => ['sometimes', 'boolean'],
+            'save_mode' => ['nullable', Rule::in(['draft', 'publish', 'save'])],
         ];
     }
 }

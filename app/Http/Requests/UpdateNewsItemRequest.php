@@ -31,6 +31,7 @@ class UpdateNewsItemRequest extends FormRequest
             'body' => ['required', 'string'],
             'is_public' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
+            'save_mode' => ['nullable', Rule::in(['draft', 'publish', 'save'])],
         ];
     }
 }
