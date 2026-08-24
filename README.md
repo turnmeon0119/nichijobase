@@ -6,7 +6,7 @@ Frontend repository:
 
 - <https://github.com/turnmeon0119/nichijobase-front>
 
-## 共同開発者向けの最初の確認
+## 共同開発者向けセットアップ手順
 
 このリポジトリはバックエンド側です。記事、ニュース、掲示板、大喜利、画像投稿などのデータ保存とAPIを担当します。
 
@@ -15,7 +15,7 @@ Frontend repository:
 - API / 管理画面を触る: `nichijobase`
 - 画面デザインやページを触る: `nichijobase-front`
 
-## 事前にインストールするもの
+### 1. 事前に必要なツールを準備する
 
 必須:
 
@@ -36,19 +36,7 @@ Frontend repository:
 
 このAPI側はDockerでPHP、Laravel、MySQLを起動するため、ローカルPCにPHPやMySQLを直接インストールする必要はありません。
 
-最初に確認するURL:
-
-- API疎通確認: <http://localhost:8000/api/test>
-- 管理ログイン: <http://localhost:8000/admin/articles/login>
-
-作業前に守ること:
-
-- `.env` はGitに入れない
-- 本番のトークンやAPIキーをSlack、README、コードに貼らない
-- 変更前に `git pull origin main` で最新化する
-- できれば `main` ではなく作業ブランチを作る
-
-## クローンから起動まで
+### 2. リポジトリをcloneする
 
 初めて参加する場合は、フロントエンドとバックエンドを同じ `podcast-site` フォルダの中に並べて置くとわかりやすいです。
 
@@ -60,23 +48,44 @@ git clone https://github.com/turnmeon0119/nichijobase.git api
 git clone https://github.com/turnmeon0119/nichijobase-front.git front
 ```
 
-APIを起動します。
+### 3. API用の環境ファイルを作る
 
 ```bash
 cd ~/development/podcast-site/api
 cp .env.example .env
+```
+
+### 4. Docker Desktopを起動する
+
+Docker Desktopを開き、起動完了してから次のコマンドへ進みます。
+
+### 5. APIを起動する
+
+```bash
 docker compose up -d --build
 docker compose exec -T app php artisan key:generate
 docker compose exec -T app php artisan migrate --seed
 ```
 
-起動確認:
+### 6. APIの起動を確認する
 
 ```bash
 curl http://localhost:8000/api/test
 ```
 
 `{"message":"OK"}` が返ればAPI側は起動できています。
+
+確認URL:
+
+- API疎通確認: <http://localhost:8000/api/test>
+- 管理ログイン: <http://localhost:8000/admin/articles/login>
+
+### 7. 作業前の注意
+
+- `.env` はGitに入れない
+- 本番のトークンやAPIキーをSlack、README、コードに貼らない
+- 変更前に `git pull origin main` で最新化する
+- できれば `main` ではなく作業ブランチを作る
 
 ## Stack
 
