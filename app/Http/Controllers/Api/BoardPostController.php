@@ -38,6 +38,7 @@ class BoardPostController extends Controller
                 'name' => $post->name,
                 'body' => $post->body,
                 'image_url' => $post->image_url,
+                'image_caption' => $post->image_caption,
                 'empathy_count' => $post->empathy_count,
                 'perspective_count' => $post->perspective_count,
                 'created_at' => $post->created_at,

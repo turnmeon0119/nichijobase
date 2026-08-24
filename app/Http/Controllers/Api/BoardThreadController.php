@@ -24,6 +24,7 @@ class BoardThreadController extends Controller
             'name' => $thread->name,
             'body' => $thread->body,
             'image_url' => $thread->image_url,
+            'image_caption' => $thread->image_caption,
             'created_at' => $thread->created_at,
             'reports_count' => $thread->reports_count,
             'empathy_count' => $thread->empathy_count,
@@ -41,6 +42,7 @@ class BoardThreadController extends Controller
                 'name' => $post->name,
                 'body' => $post->body,
                 'image_url' => $post->image_url,
+                'image_caption' => $post->image_caption,
                 'empathy_count' => $post->empathy_count,
                 'perspective_count' => $post->perspective_count,
                 'created_at' => $post->created_at,
@@ -79,7 +81,7 @@ class BoardThreadController extends Controller
         $threads = $query
             ->orderByDesc('updated_at')
             ->get([
-                'id', 'article_id', 'title', 'name', 'body', 'image_url', 'created_at',
+                'id', 'article_id', 'title', 'name', 'body', 'image_url', 'image_caption', 'created_at',
                 'reports_count', 'empathy_count', 'perspective_count',
             ]);
 

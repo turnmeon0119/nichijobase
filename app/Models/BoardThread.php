@@ -15,6 +15,7 @@ class BoardThread extends Model
         'body',
         'image_url',
         'image_public_id',
+        'image_caption',
         'created_ip',
         'is_hidden',
         'reports_count',
