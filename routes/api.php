@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\ArticleCommentController;
+use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\ArticleReactionController;
 use App\Http\Controllers\Api\BoardPostController;
 use App\Http\Controllers\Api\BoardThreadController;
+use App\Http\Controllers\Api\HitokotoPostController;
 use App\Http\Controllers\Api\NewsItemController;
 use App\Http\Controllers\Api\OgiriAnswerController;
 use App\Http\Controllers\Api\OgiriPromptController;
@@ -30,6 +31,9 @@ Route::get('/ogiri/prompts', [OgiriPromptController::class, 'index']);
 Route::get('/ogiri/prompts/{prompt}', [OgiriPromptController::class, 'show']);
 Route::post('/ogiri/prompts/{prompt}/answers', [OgiriAnswerController::class, 'store'])->middleware('throttle:30,1');
 Route::post('/ogiri/prompts/{prompt}/answers/{answer}/reactions', [OgiriAnswerController::class, 'react'])->middleware('throttle:30,1');
+Route::get('/hitokoto', [HitokotoPostController::class, 'index']);
+Route::post('/hitokoto', [HitokotoPostController::class, 'store'])->middleware('throttle:20,1');
+Route::post('/hitokoto/{hitokotoPost}/report', [HitokotoPostController::class, 'report'])->middleware('throttle:10,1');
 
 Route::middleware('admin.api.token')->group(function (): void {
     Route::post('/articles', [ArticleController::class, 'store']);
@@ -43,4 +47,7 @@ Route::middleware('admin.api.token')->group(function (): void {
     Route::patch('/threads/{thread}/unhide', [BoardThreadController::class, 'unhide']);
     Route::patch('/threads/{thread}/posts/{post}/hide', [BoardPostController::class, 'hide']);
     Route::patch('/threads/{thread}/posts/{post}/unhide', [BoardPostController::class, 'unhide']);
+    Route::delete('/hitokoto/{hitokotoPost}', [HitokotoPostController::class, 'destroy']);
+    Route::patch('/hitokoto/{hitokotoPost}/hide', [HitokotoPostController::class, 'hide']);
+    Route::patch('/hitokoto/{hitokotoPost}/unhide', [HitokotoPostController::class, 'unhide']);
 });
