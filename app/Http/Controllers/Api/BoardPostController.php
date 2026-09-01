@@ -17,7 +17,7 @@ class BoardPostController extends Controller
     public function store(StoreBoardPostRequest $request, BoardThread $thread): JsonResponse
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $image = $request->hasFile('image')
@@ -58,7 +58,7 @@ class BoardPostController extends Controller
     public function report(BoardThread $thread, int $post): JsonResponse
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $target = $thread->posts()->whereKey($post)->where('is_hidden', false)->firstOrFail();
@@ -82,7 +82,7 @@ class BoardPostController extends Controller
     public function react(Request $request, BoardThread $thread, int $post): JsonResponse
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $target = $thread->posts()->whereKey($post)->where('is_hidden', false)->firstOrFail();
