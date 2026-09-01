@@ -14,7 +14,7 @@ class AdminWebToken
         $expectedToken = (string) config('app.admin_api_token');
         $sessionToken = (string) $request->session()->get('admin_web_token', '');
 
-        if ($expectedToken === '' || !hash_equals($expectedToken, $sessionToken)) {
+        if ($expectedToken === '' || ! hash_equals($expectedToken, $sessionToken)) {
             return new RedirectResponse(route('admin.articles.login'));
         }
 

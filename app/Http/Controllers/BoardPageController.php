@@ -133,7 +133,7 @@ class BoardPageController extends Controller
     public function show(BoardThread $thread): View
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $thread->load([
@@ -172,7 +172,7 @@ class BoardPageController extends Controller
     public function storePost(Request $request, BoardThread $thread): RedirectResponse
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $validated = $request->validate([
@@ -209,7 +209,7 @@ class BoardPageController extends Controller
     public function destroyPost(BoardThread $thread, BoardPost $post): RedirectResponse
     {
         if ((int) $post->board_thread_id !== (int) $thread->id) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $this->images->delete($post->image_public_id);
