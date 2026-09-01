@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\ArticleReactionController;
 use App\Http\Controllers\Api\BoardPostController;
 use App\Http\Controllers\Api\BoardThreadController;
+use App\Http\Controllers\Api\HitokotoCommentController;
 use App\Http\Controllers\Api\HitokotoPostController;
 use App\Http\Controllers\Api\NewsItemController;
 use App\Http\Controllers\Api\OgiriAnswerController;
@@ -34,6 +35,10 @@ Route::post('/ogiri/prompts/{prompt}/answers/{answer}/reactions', [OgiriAnswerCo
 Route::get('/hitokoto', [HitokotoPostController::class, 'index']);
 Route::post('/hitokoto', [HitokotoPostController::class, 'store'])->middleware('throttle:20,1');
 Route::post('/hitokoto/{hitokotoPost}/report', [HitokotoPostController::class, 'report'])->middleware('throttle:10,1');
+Route::post('/hitokoto/{hitokotoPost}/pow', [HitokotoPostController::class, 'pow'])->middleware('throttle:30,1');
+Route::get('/hitokoto/{hitokotoPost}/comments', [HitokotoCommentController::class, 'index']);
+Route::post('/hitokoto/{hitokotoPost}/comments', [HitokotoCommentController::class, 'store'])->middleware('throttle:30,1');
+Route::post('/hitokoto/comments/{hitokotoComment}/report', [HitokotoCommentController::class, 'report'])->middleware('throttle:10,1');
 
 Route::middleware('admin.api.token')->group(function (): void {
     Route::post('/articles', [ArticleController::class, 'store']);
@@ -50,4 +55,7 @@ Route::middleware('admin.api.token')->group(function (): void {
     Route::delete('/hitokoto/{hitokotoPost}', [HitokotoPostController::class, 'destroy']);
     Route::patch('/hitokoto/{hitokotoPost}/hide', [HitokotoPostController::class, 'hide']);
     Route::patch('/hitokoto/{hitokotoPost}/unhide', [HitokotoPostController::class, 'unhide']);
+    Route::delete('/hitokoto/comments/{hitokotoComment}', [HitokotoCommentController::class, 'destroy']);
+    Route::patch('/hitokoto/comments/{hitokotoComment}/hide', [HitokotoCommentController::class, 'hide']);
+    Route::patch('/hitokoto/comments/{hitokotoComment}/unhide', [HitokotoCommentController::class, 'unhide']);
 });

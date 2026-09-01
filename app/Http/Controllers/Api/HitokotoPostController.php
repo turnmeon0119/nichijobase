@@ -19,6 +19,8 @@ class HitokotoPostController extends Controller
             'body' => $post->body,
             'created_at' => $post->created_at,
             'reports_count' => $post->reports_count,
+            'pow_count' => $post->pow_count,
+            'comments_count' => $post->comments_count,
         ];
     }
 
@@ -29,7 +31,7 @@ class HitokotoPostController extends Controller
         $paginator = HitokotoPost::query()
             ->where('is_hidden', false)
             ->orderByDesc('id')
-            ->paginate($perPage, ['id', 'name', 'body', 'created_at', 'reports_count']);
+            ->paginate($perPage, ['id', 'name', 'body', 'created_at', 'reports_count', 'pow_count', 'comments_count']);
 
         return response()->json([
             'data' => $paginator->getCollection()->map(fn (HitokotoPost $post): array => $this->formatPost($post))->all(),
@@ -49,6 +51,8 @@ class HitokotoPostController extends Controller
             'name' => $request->input('name') ?: null,
             'created_ip' => $request->ip(),
             'reports_count' => 0,
+            'pow_count' => 0,
+            'comments_count' => 0,
         ]);
 
         return response()->json([
@@ -75,6 +79,19 @@ class HitokotoPostController extends Controller
                 'id' => $hitokotoPost->id,
                 'reports_count' => $hitokotoPost->reports_count,
                 'is_hidden' => $hitokotoPost->is_hidden,
+            ],
+        ]);
+    }
+
+    public function pow(HitokotoPost $hitokotoPost): JsonResponse
+    {
+        $hitokotoPost->increment('pow_count');
+        $hitokotoPost->refresh();
+
+        return response()->json([
+            'data' => [
+                'id' => $hitokotoPost->id,
+                'pow_count' => $hitokotoPost->pow_count,
             ],
         ]);
     }

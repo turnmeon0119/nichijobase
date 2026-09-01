@@ -30,7 +30,9 @@ class HitokotoApiTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('data.body', 'きょうは晴れ')
             ->assertJsonPath('data.name', '名無し')
-            ->assertJsonPath('data.reports_count', 0);
+            ->assertJsonPath('data.reports_count', 0)
+            ->assertJsonPath('data.pow_count', 0)
+            ->assertJsonPath('data.comments_count', 0);
 
         $this->assertDatabaseHas('hitokoto_posts', [
             'body' => 'きょうは晴れ',
@@ -75,7 +77,7 @@ class HitokotoApiTest extends TestCase
             ->assertJsonPath('data.0.id', $second->id)
             ->assertJsonPath('data.1.id', $first->id)
             ->assertJsonStructure([
-                'data' => ['*' => ['id', 'name', 'body', 'created_at', 'reports_count']],
+                'data' => ['*' => ['id', 'name', 'body', 'created_at', 'reports_count', 'pow_count', 'comments_count']],
                 'meta' => ['current_page', 'last_page', 'per_page', 'total'],
             ]);
     }
@@ -118,6 +120,25 @@ class HitokotoApiTest extends TestCase
             ->assertOk()->assertJsonPath('data.is_hidden', true);
 
         $this->getJson('/api/hitokoto')->assertOk()->assertJsonCount(0, 'data');
+    }
+
+    public function test_it_increments_pow_count_on_each_call(): void
+    {
+        $post = HitokotoPost::query()->create(['body' => '応援対象']);
+
+        $this->postJson('/api/hitokoto/'.$post->id.'/pow')
+            ->assertOk()
+            ->assertJsonPath('data.id', $post->id)
+            ->assertJsonPath('data.pow_count', 1);
+
+        $this->postJson('/api/hitokoto/'.$post->id.'/pow')
+            ->assertOk()
+            ->assertJsonPath('data.pow_count', 2);
+
+        $this->assertDatabaseHas('hitokoto_posts', [
+            'id' => $post->id,
+            'pow_count' => 2,
+        ]);
     }
 
     public function test_it_requires_admin_token_to_delete_post(): void
