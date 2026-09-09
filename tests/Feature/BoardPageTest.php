@@ -132,11 +132,11 @@ class BoardPageTest extends TestCase
 
         $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
             ->post('/admin/board', [
-            'article_id' => $article->id,
-            'title' => '画面作成スレ',
-            'name' => '投稿者',
-            'body' => '画面から作成',
-        ]);
+                'article_id' => $article->id,
+                'title' => '画面作成スレ',
+                'name' => '投稿者',
+                'body' => '画面から作成',
+            ]);
 
         $thread = BoardThread::query()->where('title', '画面作成スレ')->firstOrFail();
 
@@ -158,9 +158,9 @@ class BoardPageTest extends TestCase
 
         $response = $this->withSession(['admin_web_token' => config('app.admin_api_token')])
             ->post('/admin/board/'.$thread->id.'/posts', [
-            'name' => '返信者',
-            'body' => '画面から返信',
-        ]);
+                'name' => '返信者',
+                'body' => '画面から返信',
+            ]);
 
         $postId = $thread->posts()->value('id');
 

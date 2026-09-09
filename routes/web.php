@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\AdminArticlePageController;
 use App\Http\Controllers\AdminArticleCommentPageController;
+use App\Http\Controllers\AdminArticlePageController;
 use App\Http\Controllers\AdminNewsPageController;
 use App\Http\Controllers\AdminOgiriPageController;
 use App\Http\Controllers\BoardPageController;

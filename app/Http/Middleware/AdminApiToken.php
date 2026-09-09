@@ -17,7 +17,7 @@ class AdminApiToken
         $expectedToken = (string) config('app.admin_api_token');
         $providedToken = (string) $request->header('X-Admin-Token');
 
-        if ($expectedToken === '' || !hash_equals($expectedToken, $providedToken)) {
+        if ($expectedToken === '' || ! hash_equals($expectedToken, $providedToken)) {
             return new JsonResponse([
                 'message' => 'Unauthorized',
             ], 401);

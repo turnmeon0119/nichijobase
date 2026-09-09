@@ -108,7 +108,7 @@ class AdminNewsPageController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $validated
+     * @param  array<string, mixed>  $validated
      */
     private function resolveIsPublic(Request $request, array &$validated, string $saveMode): bool
     {
@@ -162,7 +162,7 @@ class AdminNewsPageController extends Controller
     }
 
     /**
-     * @param array<int, array<string, mixed>> $blocks
+     * @param  array<int, array<string, mixed>>  $blocks
      */
     private function bodyFromBlocks(array $blocks, ?string $fallback): string
     {
@@ -176,7 +176,7 @@ class AdminNewsPageController extends Controller
     }
 
     /**
-     * @param array<int, array<string, mixed>> $blocks
+     * @param  array<int, array<string, mixed>>  $blocks
      */
     private function syncBlocks(NewsItem $item, array $blocks): void
     {

@@ -120,7 +120,7 @@ class BoardThreadController extends Controller
     public function show(BoardThread $thread): JsonResponse
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $thread->load([
@@ -188,7 +188,7 @@ class BoardThreadController extends Controller
     public function report(BoardThread $thread): JsonResponse
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $thread->increment('reports_count');
@@ -211,7 +211,7 @@ class BoardThreadController extends Controller
     public function react(Request $request, BoardThread $thread): JsonResponse
     {
         if ($thread->is_hidden) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException;
         }
 
         $validated = $request->validate([

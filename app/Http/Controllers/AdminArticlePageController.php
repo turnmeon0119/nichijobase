@@ -33,7 +33,7 @@ class AdminArticlePageController extends Controller
             'token' => ['required', 'string'],
         ]);
 
-        if (!hash_equals((string) config('app.admin_api_token'), $validated['token'])) {
+        if (! hash_equals((string) config('app.admin_api_token'), $validated['token'])) {
             return back()
                 ->withErrors(['token' => 'トークンが違います。'])
                 ->onlyInput('token');
@@ -190,7 +190,7 @@ class AdminArticlePageController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $validated
+     * @param  array<string, mixed>  $validated
      */
     private function resolveIsPublic(Request $request, array &$validated, string $saveMode): bool
     {
@@ -244,7 +244,7 @@ class AdminArticlePageController extends Controller
     }
 
     /**
-     * @param array<int, array<string, mixed>> $blocks
+     * @param  array<int, array<string, mixed>>  $blocks
      */
     private function bodyFromBlocks(array $blocks, ?string $fallback): string
     {
@@ -258,7 +258,7 @@ class AdminArticlePageController extends Controller
     }
 
     /**
-     * @param array<int, array<string, mixed>> $blocks
+     * @param  array<int, array<string, mixed>>  $blocks
      */
     private function syncBlocks(Article $article, array $blocks): void
     {
